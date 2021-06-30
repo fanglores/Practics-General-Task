@@ -12,6 +12,8 @@ int main()
 	if (code == 0) return 0;
 	
 	Player* player_array = new Player[code];
+
+	/*
 	for (int i = 0; i < code; i++)
 	{
 		string name;
@@ -19,8 +21,10 @@ int main()
 		cin >> name;
 		player_array[i].name = name;
 	}
+	*/
 
-	//menu.GameMenu();
+	Deck deck;
+	menu.GameMenu(player_array, &deck);
 
 
 }
