@@ -35,6 +35,7 @@ class Player
 private:
     vector<int> card_set, card_flow;
     int card_sum = 0;
+    int Score = 100;
 
 public:
     string name;
@@ -42,7 +43,7 @@ public:
     Player()
     {
         static int cnt = 1;
-        this->name = string("Player" + to_string(cnt));
+        name = string("Player" + to_string(cnt));
         card_set.resize(14, 0);
     }
 
@@ -79,6 +80,25 @@ public:
     string getFirstCard(Deck* deck)
     {
         return deck->decodeCard(card_flow.front());
+    }
+
+    void PlayerFlush()
+    {
+        card_set.clear();
+        card_set.resize(14, 0);
+        card_flow.clear();
+        //card_flow.resize(0);
+        card_sum = 0;
+    }
+
+    void setScore(int d)
+    {
+        Score += d;
+    }
+
+    int getScore()
+    {
+        return Score;
     }
 
 };
@@ -128,9 +148,17 @@ public:
         }
     }
 
+    void GameFlush(Player* dealer, Player* players)
+    {
+        for (int i = 0; i < playerCount; i++)
+            players[i].PlayerFlush();
+        dealer->PlayerFlush();
+    }
+
     void PrintStats(Player* dealer, Player* players, Deck* deck, int playerNumber)
     {
         system("cls");
+        cout << "\t\t\t(Player" << playerNumber + 1 << ") " << players[playerNumber].name << "`s turn!" << endl;
         cout << "Dealer: " << dealer->getFirstCard(deck) << " X" << endl;
 
         for (int i = 0; i < playerCount; i++)
@@ -148,6 +176,12 @@ public:
 
     }
 
+    void DealerGame(Player* dealer)
+    {
+        cout << "Dealer plays...";
+        //Needed
+    }
+
     void GameMenu(Player* players, Deck* deck)
     {
         Player dealer;
@@ -157,6 +191,7 @@ public:
         while (c == 'Y')
         {
             system("cls");
+            GameFlush(&dealer, players);
 
             for (int i = 0; i < playerCount; i++) players[i].takeCard(deck->getCard());
             dealer.takeCard(deck->getCard());
@@ -174,8 +209,40 @@ public:
                 for (int i = 0; i < playerCount; i++) 
                     TurnMenu(&dealer, players, deck, i);
                 
+                system("cls");
+                DealerGame(&dealer);
+                if (dealer.getCardSum() > 21) cout << "Dealer loses!" << endl << endl;
+                else if (dealer.getCardSum() == 21) cout << "Dealer wins!" << endl << endl;
+                else cout << "Dealer`s score is " << dealer.getCardSum() << "!" << endl << endl;
 
-                //score count?
+                for (int i = 0; i < playerCount; i++)
+                {
+                    int ds = dealer.getCardSum(), ps = players[i].getCardSum();
+                    cout << "(Player" << i + 1 << ") " << players[i].name << "`s score is " << players[i].getCardSum() << "!\t";
+                    
+                    //IMPROVE SCORE SYSTEM!!!
+                    if (ds > 21)
+                    {
+                        if (ps < 21) { cout << players[i].name << " wins!" << endl << endl; players[i].setScore(ds - 21); }
+                        else if (ps == 21) { cout << players[i].name << " wins!" << endl << endl; players[i].setScore(ps); }
+                        else if (ps > ds) { cout << players[i].name << " loses!" << endl << endl; players[i].setScore(ds - ps); }
+                        else if (ps < ds) cout << "Draw!";
+                        else cout << "Draw!";
+                    }
+                    else if (ds == 21)
+                    {
+                        if (ps != ds) { cout << players[i].name << " loses!" << endl << endl; players[i].setScore(-abs(ds - ps)); }
+                        else cout << "Draw!";
+                    }
+                    else
+                    {
+                        if (ps > 21) { cout << players[i].name << " loses!" << endl << endl; players[i].setScore(ps - 21); }
+                        else if (ps == 21) { cout << players[i].name << " wins!" << endl << endl; players[i].setScore(ps); }
+                        else if (ps > ds) { cout << players[i].name << " wins!" << endl << endl; players[i].setScore(ps - ds); }
+                        else if (ps < ds) { cout << players[i].name << " loses!" << endl << endl; players[i].setScore(ps - ds); }
+                        else cout << "Draw!";
+                    }
+                }
 
                 cout << "Want to play again? Y/N\n>>";
                 cin >> c;
@@ -207,7 +274,8 @@ public:
 
         if (player->getCardSum() == 21) cout << "21! You won!" << endl;
         else if (player->getCardSum() > 21) cout << "Bust! You lose!" << endl;
-
+        cout << "Passing the move to another player..." << endl;
+        system("pause");
     }
 
     void printRules()
