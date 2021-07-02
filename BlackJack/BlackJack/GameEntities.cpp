@@ -147,7 +147,7 @@ public:
                 system("pause");
                 break;
             default:
-                cout << "Input error. Try again";
+                cout << "Input error. Try again" << endl;
                 system("pause");
                 break;
             }
@@ -180,6 +180,7 @@ public:
                 players[i].printCardSet(deck);
                 cout << endl;
             }
+            else cout << endl;
         
         cout << endl;
         cout << "Your set is: ";
@@ -303,7 +304,7 @@ public:
                 PrintStats(dealer, players, deck, playerNumber);
             }
             else if (ans == 2) break;
-            else cout << "Input error. Try again";
+            else cout << "Input error. Try again" << endl;
         }
 
         if (player->getCardSum() == 21) cout << "21! You won!" << endl;
