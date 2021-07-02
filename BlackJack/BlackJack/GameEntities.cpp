@@ -271,6 +271,7 @@ public:
                     }
                 }
 
+                c = 0;
                 while (c != 1 && c != 2)
                 {
                     cout << "Want to play again?\n1. Play again\n2. Exit\n>>";
