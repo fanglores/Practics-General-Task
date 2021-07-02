@@ -274,7 +274,7 @@ public:
                 c = 0;
                 while (c != 1 && c != 2)
                 {
-                    cout << "Want to play again?\n1. Play again\n2. Exit\n>>";
+                    cout << "\nWant to play again?\n1. Play again\n2. Exit\n>>";
                     cin >> c;
                     if (c != 2 && c != 1) cout << "Input error. Try again";
                     system("pause");
