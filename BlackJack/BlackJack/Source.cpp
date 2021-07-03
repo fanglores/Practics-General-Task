@@ -4,6 +4,7 @@ using namespace std;
 
 int main()
 {
+	setlocale(LC_ALL, "rus");
 	Menu menu;
 
 	int code = menu.MainMenu();
@@ -15,3 +16,12 @@ int main()
 	menu.GameMenu(player_array, &deck);
 
 }
+
+/*
+To do:
+Cards description in Rules section
+Improve rules as in Rules section
+Less pauses
+When one player plays dont wait OTHER players?
+Input check
+*/
