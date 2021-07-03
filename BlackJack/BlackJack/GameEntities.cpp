@@ -3,7 +3,6 @@
 #include <string>
 #include <time.h>
 #include <Windows.h>
-#include <map>
 using namespace std;
 
 #define _CRT_SECURE_NO_WARNINGS
@@ -12,7 +11,7 @@ class Deck
 {
 private:
     double shuffleFraction;
-    const vector<string> card_dict{ "err", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "V", "Q", "K"};
+    const string card_dict[14] = { "err", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "V", "Q", "K"};
 
 public:
     Deck()
@@ -133,7 +132,8 @@ public:
             cout << "¬ведите число: ";
 
             //INPUT SECURE
-            scanf("%d", &ans);
+            if (scanf("%d", &ans)) cout << "scanf!";
+            else cout << "err";
 
             switch (ans)
             {
@@ -311,7 +311,6 @@ public:
 
             //INPUT SECURE
             scanf("%d", &ans);
-            //DEAD - input as string or char leads to infinite loop......
 
             if (ans == 1)
             {
