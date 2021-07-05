@@ -205,7 +205,7 @@ public:
                 players[i].printCardSet(deck);
                 cout << endl;
             }
-            //else cout << endl;
+            else cout << endl;
         
         cout << endl;
         cout << "Ваша рука: ";
