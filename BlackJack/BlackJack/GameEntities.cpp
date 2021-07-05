@@ -207,7 +207,7 @@ public:
             }
             else cout << endl;
         
-        cout << endl;
+        if(playerCount > 1) cout << endl;
         cout << "Ваша рука: ";
         players[playerNumber].printCardSet(deck);
         cout << endl << endl;
@@ -280,7 +280,7 @@ public:
                     {
                         if (ps > ds) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(100); }
                         else if (ps < ds) { cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(-50); }
-                        else cout << "Ничья!" << endl;
+                        else cout << "Ничья!" << endl << endl;
                     }
                     else if (ps == 21)
                     {
@@ -296,7 +296,7 @@ public:
                 while (ans != 1 && ans != 2)
                 {
                     //выход в главное меню?
-                    cout << "\nСыграть ещё раз?\n1. Играть\n2. Выйти из игры\nВведите цифру: ";
+                    cout << "Сыграть ещё раз?\n1. Играть\n2. Выйти из игры\n\nВведите цифру: ";
 
                     //SECURE INPUT
                     ans = secure_cin();
@@ -351,7 +351,7 @@ public:
     void printRules()
     {
         system("cls");
-        cout << "\t\t\tПравила игры" << endl;
+        cout << "\t\t\t\tПравила игры" << endl;
         cout << "Каждый игрок получает на руки по две карты." << endl;
         cout << "Любой игрок в свой ход может попросить дополнительную карту, если считает нужным, или отказаться от нее." << endl
 

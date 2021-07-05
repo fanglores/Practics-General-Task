@@ -1,6 +1,4 @@
-#include <iostream>
 #include "GameEntities.cpp"
-using namespace std;
 
 int main()
 {
