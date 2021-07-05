@@ -21,6 +21,7 @@ int main()
 
 /*
 To do:
+deck from 6 to 10? russian
 add name to players?
 Improve rules as in Rules section
 Less pauses

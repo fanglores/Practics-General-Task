@@ -114,7 +114,6 @@ public:
 
 };
 
-
 class Menu
 {
 private:
@@ -261,9 +260,9 @@ public:
             }
             else
             {
-                for (int i = 0; i < playerCount; i++) 
+                for (int i = 0; i < playerCount; i++)
                     TurnMenu(&dealer, players, deck, i);
-                
+
                 system("cls");
                 DealerGame(&dealer, deck);
                 cout << "Очки крупье: " << dealer.getCardSum() << "!\t";
@@ -275,28 +274,21 @@ public:
                 {
                     int ds = dealer.getCardSum(), ps = players[i].getCardSum();
                     cout << "(Игрок" << i + 1 << ") " << players[i].name << " набрал " << players[i].getCardSum() << "!\t";
-                    
-                    //IMPROVE SCORE SYSTEM!!!
-                    if (ds > 21)
+
+                    //IMPROVE SCORE SYSTEM?
+                    if (ps < 21)
                     {
-                        if (ps < 21) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(ds - 21); }
-                        else if (ps == 21) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(ps); }
-                        else if (ps > ds) { cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(ds - ps); }
-                        else if (ps < ds) cout << "Ничья!" << endl;
+                        if (ps > ds) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(100); }
+                        else if (ps < ds) { cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(-50); }
                         else cout << "Ничья!" << endl;
                     }
-                    else if (ds == 21)
+                    else if (ps == 21)
                     {
-                        if (ps != ds) { cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(-abs(ds - ps)); }
-                        else cout << "Ничья!" << endl;
+                        cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(-50);
                     }
                     else
                     {
-                        if (ps > 21) { cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(ps - 21); }
-                        else if (ps == 21) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(ps); }
-                        else if (ps > ds) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(ps - ds); }
-                        else if (ps < ds) { cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(ps - ds); }
-                        else cout << "Ничья!" << endl;
+                        cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(-50);
                     }
                 }
 
@@ -318,7 +310,6 @@ public:
                 }
             }
         }
-    
     }
 
     void TurnMenu(Player* dealer, Player* players, Deck* deck, int playerNumber)
@@ -369,7 +360,7 @@ public:
             << "Игрок, набравший количество очков большее чем 21, автоматически проигрывает" << endl;
 
         cout << "Игроки набравшие менее 21 очка ждут, пока крупье не доберет карты себе." << endl
-            << "Если сумма очков крупье превышает сумму очков игрока, он проигрывает." << endl
+            << "Если сумма очков крупье превышает сумму очков игрока, игрок проигрывает." << endl
             << "Если сумма очков крупье меньше суммы очков игрока, игрок выигрывает." << endl << endl;
 
         cout << "Номиналы карт: A (туз) - 11 или 1; карты от 2 до 10 имеют соответствующий номинал "
