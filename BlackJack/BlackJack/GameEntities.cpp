@@ -5,8 +5,6 @@
 #include <Windows.h>
 using namespace std;
 
-#define _CRT_SECURE_NO_WARNINGS
-
 class Deck
 {
 private:
@@ -37,6 +35,7 @@ private:
     vector<int> card_set, card_flow;
     int card_sum = 0;
     int Score = 100;
+    int cardsTaken = 0;
 
 public:
     string name;
@@ -45,7 +44,8 @@ public:
     {
         static int player_cnt = 1;
         name = string("Игрок" + to_string(player_cnt));
-        card_set.resize(14, 0);
+        card_set.resize(5, 0);
+        card_flow.resize(0);
         player_cnt++;
     }
 
@@ -65,24 +65,18 @@ public:
 
     void printCardSet(Deck* deck)
     {
-        for (int c = 1; c < 14; c++)
-            for (int i = 0; i < card_set[c]; i++)
-            {
-                //Sleep(600);
-                cout << deck->decodeCard(c) << " ";
-            }
+        for (int i = 0; i < cardsTaken; i++)
+            cout << deck->decodeCard(card_flow[i]) << " ";
     }
 
     void takeCard(int c)
     {
         //card overtake
-        if (card_flow.size() >= 5)
-        {
-            cout << "Больше нельзя!";
-        }
+        cardsTaken++;
 
         card_flow.push_back(c);
         card_set[c]++;
+
         if (c == 1) card_sum += 11;
         else if (c >= 11) card_sum += c % 9;
         else card_sum += c;
@@ -99,6 +93,11 @@ public:
         card_set.resize(14, 0);
         card_flow.clear();
         card_sum = 0;
+    }
+
+    int getCardsTaken()
+    {
+        return cardsTaken;
     }
 
     void setScore(int d)
@@ -121,23 +120,36 @@ private:
 
 public:
 
+    int secure_cin()
+    {
+        string str;
+        getline(cin, str);
+        if (str.size() > 1) return -1;
+        else
+        {
+            if (str[0] >= '0' && str[0] <= '9') return (str[0] - '0');
+            else return -1;
+        }
+    }
+
     int MainMenu()
     {
         int ans;
+        
         while (true)
         {
             system("cls");
             cout << "Добро пожаловать в игру 21!" << endl << endl;
             cout << "1. Одиночная игра\n2. Совместная игра\n3. Правила игры\n0. Выход" << endl << endl;
-            cout << "Введите число: ";
+            cout << "Введите цифру: ";
 
-            //INPUT SECURE
-            if (scanf("%d", &ans)) cout << "scanf!";
-            else cout << "err";
+            //SECURE INPUT
+            ans = secure_cin();
 
             switch (ans)
             {
             case 0:
+                cout << endl << "Завершение работы игры..." << endl << "Надеемся увидеть Вас снова!" << endl;
                 return 0;
 
             case 1:
@@ -174,11 +186,7 @@ public:
         cout << "\t\t\t(Игрок" << playerNumber + 1 << ") " << players[playerNumber].name << " ходит!" << endl;
         cout << "Крупье: ";
 
-        //Sleep(500);
-        cout << dealer->getFirstCard(deck);
-        //Sleep(500);
-        cout << " X" << endl;
-        //Sleep(500);
+        cout << dealer->getFirstCard(deck) << " X" << endl;
 
         for (int i = 0; i < playerCount; i++)
             if (i != playerNumber)
@@ -198,7 +206,7 @@ public:
 
     void DealerGame(Player* dealer, Deck* deck)
     {
-        while (dealer->getCardSum() < 17)
+        while (dealer->getCardSum() < 17 && dealer->getCardsTaken() < 5)
         {
             cout << "Сейчас играет крупье..." << endl;
             cout << "Рука крупье: ";
@@ -222,9 +230,9 @@ public:
     {
         Player dealer;
         dealer.name = "Крупье";
-        int c = 1;
+        int ans = 1;
         
-        while (c == 1)
+        while (ans == 1)
         {
             system("cls");
             GameFlush(&dealer, players);
@@ -281,15 +289,15 @@ public:
                     }
                 }
 
-                c = 0;
-                while (c != 1 && c != 2)
+                ans = 0;
+                while (ans != 1 && ans != 2)
                 {
-                    cout << "\nСыграть ещё раз?\n1. Играть\n2. Выход\n>>";
+                    cout << "\nСыграть ещё раз?\n1. Играть\n2. Выход\nВведите цифру: ";
 
-                    //INPUT SECURE
-                    scanf("%d", &c);
+                    //SECURE INPUT
+                    ans = secure_cin();
 
-                    if (c != 2 && c != 1) cout << "Ошибка ввода. Попробуйте ещё раз" << endl;
+                    if (ans != 2 && ans != 1) cout << "Ошибка ввода. Попробуйте ещё раз" << endl;
                     system("pause");
                     system("cls");
                 }
@@ -303,14 +311,14 @@ public:
         int ans;
         Player* player = &players[playerNumber];
 
-        while (player->getCardSum() < 21)
+        while (player->getCardSum() < 21 && player->getCardsTaken() < 5)
         {
             system("cls");
             PrintStats(dealer, players, deck, playerNumber);
             cout << "Сделайте ход:\n1. Добрать\n2. Закончить ход\n\n>>";
 
             //INPUT SECURE
-            scanf("%d", &ans);
+            ans = secure_cin();
 
             if (ans == 1)
             {
@@ -325,9 +333,11 @@ public:
             }
         }
 
+        if (player->getCardsTaken() == 5) cout << "Рука заполнена! Больше брать нельзя!" << endl;
         if (player->getCardSum() == 21) cout << "21! Вы выиграли!" << endl;
         else if (player->getCardSum() > 21) cout << "Перебор! Вы проиграли!" << endl;
-        cout << "Передаем ход следующему игроку..." << endl;
+
+        cout << endl << "Передаем ход следующему игроку..." << endl;
         system("pause");
         system("cls");
     }
@@ -338,12 +348,18 @@ public:
         cout << "\t\t\tПравила игры" << endl;
         cout << "Каждый игрок получает на руки по две карты." << endl;
         cout << "Любой игрок в свой ход может попросить дополнительную карту, если считает нужным, или отказаться от нее." << endl
+
             << "Игрок может иметь на руках не более 5 карт. Игрок, набравший 21 очко, сразу выигрывает." << endl
             << "Так же сразу выигрывает игрок набравший \"золотое очко\", то есть имеющий на руках двух тузов." << endl
             << "Игрок, набравший количество очков большее чем 21, автоматически проигрывает" << endl;
+
         cout << "Игроки набравшие менее 21 очка ждут, пока крупье не доберет карты себе." << endl
             << "Если сумма очков крупье превышает сумму очков игрока, он проигрывает." << endl
             << "Если сумма очков крупье меньше суммы очков игрока, игрок выигрывает." << endl << endl;
+
+        cout << "Номиналы карт: A (туз) - 11 или 1; карты от 2 до 10 имеют соответствующий номинал "
+            << "V (валет) - 2; Q (дама) - 3; K (король) - 4" << endl << endl;
+
     }
 
 };

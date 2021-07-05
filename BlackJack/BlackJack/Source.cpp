@@ -19,9 +19,7 @@ int main()
 
 /*
 To do:
-Cards description in Rules section
 Improve rules as in Rules section
 Less pauses
 When one player plays dont wait OTHER players?
-Input check
 */
