@@ -19,6 +19,7 @@ int main()
 
 /*
 To do:
+change system("pause");
 Improve rules as in Rules section
 Less pauses
 When one player plays dont wait OTHER players?

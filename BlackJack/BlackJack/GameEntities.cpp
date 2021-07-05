@@ -3,6 +3,7 @@
 #include <string>
 #include <time.h>
 #include <Windows.h>
+#include <conio.h>
 using namespace std;
 
 class Deck
@@ -132,6 +133,13 @@ public:
         }
     }
 
+    void sys_pause(string out)
+    {
+        string tmp;
+        cout << out << endl;
+        _getch();
+    }
+
     int MainMenu()
     {
         int ans;
@@ -163,11 +171,11 @@ public:
 
             case 3:
                 printRules();
-                system("pause");
+                sys_pause("Для возврата в главное меню нажмите любую клавишу...");
                 break;
             default:
                 cout << "Ошибка ввода. Попробуйте ещё раз" << endl;
-                system("pause");
+                sys_pause("Нажмите любую клавишу, чтобы повторить ввод...");
                 break;
             }
         }
@@ -222,7 +230,7 @@ public:
         cout << endl << endl;
         cout << "Крупье сыграл. Набранные очки: " << dealer->getCardSum() << "!" << endl << endl;
 
-        system("pause");
+        sys_pause("Нажмите любую клавишу, чтобы перейти к подсчёту очков...");
         system("cls");
     }
 
@@ -245,8 +253,8 @@ public:
 
             if (dealer.getCardSum() == 21)
             {
-                cout << "У крупье 21! Пересдача...";
-                system("pause");
+                cout << "У крупье 21! Пересдача..." << endl;
+                sys_pause("Для перезапуска игры нажмите любую клавишу...");
             }
             else
             {
@@ -298,7 +306,7 @@ public:
                     ans = secure_cin();
 
                     if (ans != 2 && ans != 1) cout << "Ошибка ввода. Попробуйте ещё раз" << endl;
-                    system("pause");
+                    sys_pause("Нажмите любую клавишу, чтобы повторить ввод...");
                     system("cls");
                 }
             }
@@ -329,7 +337,7 @@ public:
             else
             {
                 cout << "Ошибка ввода. Попробуйте ещё раз" << endl;
-                system("pause");
+                sys_pause("Нажмите любую клавишу, чтобы повторить ввод...");
             }
         }
 
@@ -338,7 +346,7 @@ public:
         else if (player->getCardSum() > 21) cout << "Перебор! Вы проиграли!" << endl;
 
         cout << endl << "Передаем ход следующему игроку..." << endl;
-        system("pause");
+        sys_pause("Подтвердите, нажав любую клавишу...");
         system("cls");
     }
 
