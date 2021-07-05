@@ -34,9 +34,9 @@ class Player
 {
 private:
     vector<int> card_set, card_flow;
+    int cardsTaken = 0;
     int card_sum = 0;
     int Score = 100;
-    int cardsTaken = 0;
 
 public:
     string name;
@@ -137,6 +137,10 @@ public:
     {
         string tmp;
         cout << out << endl;
+        //clear buff?
+        cin.ignore();
+        cin.clear();
+        cin.sync();
         _getch();
     }
 
@@ -166,7 +170,8 @@ public:
 
             case 2:
                 cout << "\nВведите количество игроков (не больше 7): ";
-                cin >> this->playerCount;
+                //SECURE INPUT
+                this->playerCount = secure_cin();
                 return playerCount;
 
             case 3:
@@ -300,13 +305,17 @@ public:
                 ans = 0;
                 while (ans != 1 && ans != 2)
                 {
-                    cout << "\nСыграть ещё раз?\n1. Играть\n2. Выход\nВведите цифру: ";
+                    //выход в главное меню?
+                    cout << "\nСыграть ещё раз?\n1. Играть\n2. Выйти из игры\nВведите цифру: ";
 
                     //SECURE INPUT
                     ans = secure_cin();
 
-                    if (ans != 2 && ans != 1) cout << "Ошибка ввода. Попробуйте ещё раз" << endl;
-                    sys_pause("Нажмите любую клавишу, чтобы повторить ввод...");
+                    if (ans != 2 && ans != 1)
+                    {
+                        cout << "Ошибка ввода. Попробуйте ещё раз" << endl;
+                        sys_pause("Нажмите любую клавишу, чтобы повторить ввод...");
+                    }
                     system("cls");
                 }
             }

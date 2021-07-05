@@ -8,18 +8,19 @@ int main()
 	Menu menu;
 
 	int code = menu.MainMenu();
-	if (code == 0) return 0;
-	
-	Player* player_array = new Player[code];
+	if (code != 0)
+	{
+		Player* player_array = new Player[code];
 
-	Deck deck;
-	menu.GameMenu(player_array, &deck);
+		Deck deck;
+		menu.GameMenu(player_array, &deck);
+	}
 
+	return 0;
 }
 
 /*
 To do:
-change system("pause");
 Improve rules as in Rules section
 Less pauses
 When one player plays dont wait OTHER players?
