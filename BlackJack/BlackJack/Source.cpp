@@ -21,6 +21,7 @@ int main()
 
 /*
 To do:
+add name to players?
 Improve rules as in Rules section
 Less pauses
 When one player plays dont wait OTHER players?

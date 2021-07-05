@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <vector>
 #include <string>
 #include <time.h>
@@ -44,8 +44,8 @@ public:
     Player()
     {
         static int player_cnt = 1;
-        name = string("Игрок" + to_string(player_cnt));
-        card_set.resize(5, 0);
+        name = string("РРіСЂРѕРє" + to_string(player_cnt));
+        card_set.resize(14, 0);
         card_flow.resize(0);
         player_cnt++;
     }
@@ -93,6 +93,7 @@ public:
         card_set.clear();
         card_set.resize(14, 0);
         card_flow.clear();
+        cardsTaken = 0;
         card_sum = 0;
     }
 
@@ -138,7 +139,6 @@ public:
         string tmp;
         cout << out << endl;
         //clear buff?
-        cin.ignore();
         cin.clear();
         cin.sync();
         _getch();
@@ -151,9 +151,9 @@ public:
         while (true)
         {
             system("cls");
-            cout << "Добро пожаловать в игру 21!" << endl << endl;
-            cout << "1. Одиночная игра\n2. Совместная игра\n3. Правила игры\n0. Выход" << endl << endl;
-            cout << "Введите цифру: ";
+            cout << "Р”РѕР±СЂРѕ РїРѕР¶Р°Р»РѕРІР°С‚СЊ РІ РёРіСЂСѓ 21!" << endl << endl;
+            cout << "1. РћРґРёРЅРѕС‡РЅР°СЏ РёРіСЂР°\n2. РЎРѕРІРјРµСЃС‚РЅР°СЏ РёРіСЂР°\n3. РџСЂР°РІРёР»Р° РёРіСЂС‹\n0. Р’С‹С…РѕРґ" << endl << endl;
+            cout << "Р’РІРµРґРёС‚Рµ С†РёС„СЂСѓ: ";
 
             //SECURE INPUT
             ans = secure_cin();
@@ -161,7 +161,7 @@ public:
             switch (ans)
             {
             case 0:
-                cout << endl << "Завершение работы игры..." << endl << "Надеемся увидеть Вас снова!" << endl;
+                cout << endl << "Р—Р°РІРµСЂС€РµРЅРёРµ СЂР°Р±РѕС‚С‹ РёРіСЂС‹..." << endl << "РќР°РґРµРµРјСЃСЏ СѓРІРёРґРµС‚СЊ Р’Р°СЃ СЃРЅРѕРІР°!" << endl;
                 return 0;
 
             case 1:
@@ -169,18 +169,18 @@ public:
                 return playerCount;
 
             case 2:
-                cout << "\nВведите количество игроков (не больше 7): ";
+                cout << "\nР’РІРµРґРёС‚Рµ РєРѕР»РёС‡РµСЃС‚РІРѕ РёРіСЂРѕРєРѕРІ (РЅРµ Р±РѕР»СЊС€Рµ 7): ";
                 //SECURE INPUT
                 this->playerCount = secure_cin();
                 return playerCount;
 
             case 3:
                 printRules();
-                sys_pause("Для возврата в главное меню нажмите любую клавишу...");
+                sys_pause("Р”Р»СЏ РІРѕР·РІСЂР°С‚Р° РІ РіР»Р°РІРЅРѕРµ РјРµРЅСЋ РЅР°Р¶РјРёС‚Рµ Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ...");
                 break;
             default:
-                cout << "Ошибка ввода. Попробуйте ещё раз" << endl;
-                sys_pause("Нажмите любую клавишу, чтобы повторить ввод...");
+                cout << "РћС€РёР±РєР° РІРІРѕРґР°. РџРѕРїСЂРѕР±СѓР№С‚Рµ РµС‰С‘ СЂР°Р·" << endl;
+                sys_pause("РќР°Р¶РјРёС‚Рµ Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ, С‡С‚РѕР±С‹ РїРѕРІС‚РѕСЂРёС‚СЊ РІРІРѕРґ...");
                 break;
             }
         }
@@ -196,10 +196,8 @@ public:
     void PrintStats(Player* dealer, Player* players, Deck* deck, int playerNumber)
     {
         system("cls");
-        cout << "\t\t\t(Игрок" << playerNumber + 1 << ") " << players[playerNumber].name << " ходит!" << endl;
-        cout << "Крупье: ";
-
-        cout << dealer->getFirstCard(deck) << " X" << endl;
+        cout << "\t\t\t(РРіСЂРѕРє" << playerNumber + 1 << ") " << players[playerNumber].name << " С…РѕРґРёС‚!" << endl;
+        cout << "РљСЂСѓРїСЊРµ: " << dealer->getFirstCard(deck) << " X" << endl;
 
         for (int i = 0; i < playerCount; i++)
             if (i != playerNumber)
@@ -208,10 +206,10 @@ public:
                 players[i].printCardSet(deck);
                 cout << endl;
             }
-            else cout << endl;
+            //else cout << endl;
         
         cout << endl;
-        cout << "Ваша рука: ";
+        cout << "Р’Р°С€Р° СЂСѓРєР°: ";
         players[playerNumber].printCardSet(deck);
         cout << endl << endl;
         //Sleep(500);
@@ -221,28 +219,28 @@ public:
     {
         while (dealer->getCardSum() < 17 && dealer->getCardsTaken() < 5)
         {
-            cout << "Сейчас играет крупье..." << endl;
-            cout << "Рука крупье: ";
+            cout << "РЎРµР№С‡Р°СЃ РёРіСЂР°РµС‚ РєСЂСѓРїСЊРµ..." << endl;
+            cout << "Р СѓРєР° РєСЂСѓРїСЊРµ: ";
             dealer->printCardSet(deck);
             dealer->takeCard(deck->getCard());
             Sleep(800);
             system("cls");
         }
 
-        cout << "Сейчас играет крупье..." << endl;
-        cout << "Рука крупье: ";
+        cout << "РЎРµР№С‡Р°СЃ РёРіСЂР°РµС‚ РєСЂСѓРїСЊРµ..." << endl;
+        cout << "Р СѓРєР° РєСЂСѓРїСЊРµ: ";
         dealer->printCardSet(deck);
         cout << endl << endl;
-        cout << "Крупье сыграл. Набранные очки: " << dealer->getCardSum() << "!" << endl << endl;
+        cout << "РљСЂСѓРїСЊРµ СЃС‹РіСЂР°Р». РќР°Р±СЂР°РЅРЅС‹Рµ РѕС‡РєРё: " << dealer->getCardSum() << "!" << endl << endl;
 
-        sys_pause("Нажмите любую клавишу, чтобы перейти к подсчёту очков...");
+        sys_pause("РќР°Р¶РјРёС‚Рµ Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ, С‡С‚РѕР±С‹ РїРµСЂРµР№С‚Рё Рє РїРѕРґСЃС‡С‘С‚Сѓ РѕС‡РєРѕРІ...");
         system("cls");
     }
 
     void GameMenu(Player* players, Deck* deck)
     {
         Player dealer;
-        dealer.name = "Крупье";
+        dealer.name = "РљСЂСѓРїСЊРµ";
         int ans = 1;
         
         while (ans == 1)
@@ -258,8 +256,8 @@ public:
 
             if (dealer.getCardSum() == 21)
             {
-                cout << "У крупье 21! Пересдача..." << endl;
-                sys_pause("Для перезапуска игры нажмите любую клавишу...");
+                cout << "РЈ РєСЂСѓРїСЊРµ 21! РџРµСЂРµСЃРґР°С‡Р°..." << endl;
+                sys_pause("Р”Р»СЏ РїРµСЂРµР·Р°РїСѓСЃРєР° РёРіСЂС‹ РЅР°Р¶РјРёС‚Рµ Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ...");
             }
             else
             {
@@ -268,53 +266,53 @@ public:
                 
                 system("cls");
                 DealerGame(&dealer, deck);
-                cout << "Очки крупье: " << dealer.getCardSum() << "!\t";
-                if (dealer.getCardSum() > 21) cout << "Крупье проигрывает!" << endl;
-                else if (dealer.getCardSum() == 21) cout << "Крупье выигрывает!" << endl;
+                cout << "РћС‡РєРё РєСЂСѓРїСЊРµ: " << dealer.getCardSum() << "!\t";
+                if (dealer.getCardSum() > 21) cout << "РљСЂСѓРїСЊРµ РїСЂРѕРёРіСЂС‹РІР°РµС‚!" << endl;
+                else if (dealer.getCardSum() == 21) cout << "РљСЂСѓРїСЊРµ РІС‹РёРіСЂС‹РІР°РµС‚!" << endl;
                 cout << endl;
 
                 for (int i = 0; i < playerCount; i++)
                 {
                     int ds = dealer.getCardSum(), ps = players[i].getCardSum();
-                    cout << "(Игрок" << i + 1 << ") " << players[i].name << " набрал " << players[i].getCardSum() << "!\t";
+                    cout << "(РРіСЂРѕРє" << i + 1 << ") " << players[i].name << " РЅР°Р±СЂР°Р» " << players[i].getCardSum() << "!\t";
                     
                     //IMPROVE SCORE SYSTEM!!!
                     if (ds > 21)
                     {
-                        if (ps < 21) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(ds - 21); }
-                        else if (ps == 21) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(ps); }
-                        else if (ps > ds) { cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(ds - ps); }
-                        else if (ps < ds) cout << "Ничья!" << endl;
-                        else cout << "Ничья!" << endl;
+                        if (ps < 21) { cout << players[i].name << " РІС‹РёРіСЂС‹РІР°РµС‚!" << endl << endl; players[i].setScore(ds - 21); }
+                        else if (ps == 21) { cout << players[i].name << " РІС‹РёРіСЂС‹РІР°РµС‚!" << endl << endl; players[i].setScore(ps); }
+                        else if (ps > ds) { cout << players[i].name << " РїСЂРѕРёРіСЂС‹РІР°РµС‚!" << endl << endl; players[i].setScore(ds - ps); }
+                        else if (ps < ds) cout << "РќРёС‡СЊСЏ!" << endl;
+                        else cout << "РќРёС‡СЊСЏ!" << endl;
                     }
                     else if (ds == 21)
                     {
-                        if (ps != ds) { cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(-abs(ds - ps)); }
-                        else cout << "Ничья!" << endl;
+                        if (ps != ds) { cout << players[i].name << " РїСЂРѕРёРіСЂС‹РІР°РµС‚!" << endl << endl; players[i].setScore(-abs(ds - ps)); }
+                        else cout << "РќРёС‡СЊСЏ!" << endl;
                     }
                     else
                     {
-                        if (ps > 21) { cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(ps - 21); }
-                        else if (ps == 21) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(ps); }
-                        else if (ps > ds) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(ps - ds); }
-                        else if (ps < ds) { cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(ps - ds); }
-                        else cout << "Ничья!" << endl;
+                        if (ps > 21) { cout << players[i].name << " РїСЂРѕРёРіСЂС‹РІР°РµС‚!" << endl << endl; players[i].setScore(ps - 21); }
+                        else if (ps == 21) { cout << players[i].name << " РІС‹РёРіСЂС‹РІР°РµС‚!" << endl << endl; players[i].setScore(ps); }
+                        else if (ps > ds) { cout << players[i].name << " РІС‹РёРіСЂС‹РІР°РµС‚!" << endl << endl; players[i].setScore(ps - ds); }
+                        else if (ps < ds) { cout << players[i].name << " РїСЂРѕРёРіСЂС‹РІР°РµС‚!" << endl << endl; players[i].setScore(ps - ds); }
+                        else cout << "РќРёС‡СЊСЏ!" << endl;
                     }
                 }
 
                 ans = 0;
                 while (ans != 1 && ans != 2)
                 {
-                    //выход в главное меню?
-                    cout << "\nСыграть ещё раз?\n1. Играть\n2. Выйти из игры\nВведите цифру: ";
+                    //РІС‹С…РѕРґ РІ РіР»Р°РІРЅРѕРµ РјРµРЅСЋ?
+                    cout << "\nРЎС‹РіСЂР°С‚СЊ РµС‰С‘ СЂР°Р·?\n1. РРіСЂР°С‚СЊ\n2. Р’С‹Р№С‚Рё РёР· РёРіСЂС‹\nР’РІРµРґРёС‚Рµ С†РёС„СЂСѓ: ";
 
                     //SECURE INPUT
                     ans = secure_cin();
 
                     if (ans != 2 && ans != 1)
                     {
-                        cout << "Ошибка ввода. Попробуйте ещё раз" << endl;
-                        sys_pause("Нажмите любую клавишу, чтобы повторить ввод...");
+                        cout << "РћС€РёР±РєР° РІРІРѕРґР°. РџРѕРїСЂРѕР±СѓР№С‚Рµ РµС‰С‘ СЂР°Р·" << endl;
+                        sys_pause("РќР°Р¶РјРёС‚Рµ Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ, С‡С‚РѕР±С‹ РїРѕРІС‚РѕСЂРёС‚СЊ РІРІРѕРґ...");
                     }
                     system("cls");
                 }
@@ -332,7 +330,7 @@ public:
         {
             system("cls");
             PrintStats(dealer, players, deck, playerNumber);
-            cout << "Сделайте ход:\n1. Добрать\n2. Закончить ход\n\n>>";
+            cout << "РЎРґРµР»Р°Р№С‚Рµ С…РѕРґ:\n1. Р”РѕР±СЂР°С‚СЊ\n2. Р—Р°РєРѕРЅС‡РёС‚СЊ С…РѕРґ\n\n>>";
 
             //INPUT SECURE
             ans = secure_cin();
@@ -345,37 +343,37 @@ public:
             else if (ans == 2) break;
             else
             {
-                cout << "Ошибка ввода. Попробуйте ещё раз" << endl;
-                sys_pause("Нажмите любую клавишу, чтобы повторить ввод...");
+                cout << "РћС€РёР±РєР° РІРІРѕРґР°. РџРѕРїСЂРѕР±СѓР№С‚Рµ РµС‰С‘ СЂР°Р·" << endl;
+                sys_pause("РќР°Р¶РјРёС‚Рµ Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ, С‡С‚РѕР±С‹ РїРѕРІС‚РѕСЂРёС‚СЊ РІРІРѕРґ...");
             }
         }
 
-        if (player->getCardsTaken() == 5) cout << "Рука заполнена! Больше брать нельзя!" << endl;
-        if (player->getCardSum() == 21) cout << "21! Вы выиграли!" << endl;
-        else if (player->getCardSum() > 21) cout << "Перебор! Вы проиграли!" << endl;
+        if (player->getCardsTaken() == 5) cout << "Р СѓРєР° Р·Р°РїРѕР»РЅРµРЅР°! Р‘РѕР»СЊС€Рµ Р±СЂР°С‚СЊ РЅРµР»СЊР·СЏ!" << endl;
+        if (player->getCardSum() == 21) cout << "21! Р’С‹ РІС‹РёРіСЂР°Р»Рё!" << endl;
+        else if (player->getCardSum() > 21) cout << "РџРµСЂРµР±РѕСЂ! Р’С‹ РїСЂРѕРёРіСЂР°Р»Рё!" << endl;
 
-        cout << endl << "Передаем ход следующему игроку..." << endl;
-        sys_pause("Подтвердите, нажав любую клавишу...");
+        cout << endl << "РџРµСЂРµРґР°РµРј С…РѕРґ СЃР»РµРґСѓСЋС‰РµРјСѓ РёРіСЂРѕРєСѓ..." << endl;
+        sys_pause("РџРѕРґС‚РІРµСЂРґРёС‚Рµ, РЅР°Р¶Р°РІ Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ...");
         system("cls");
     }
 
     void printRules()
     {
         system("cls");
-        cout << "\t\t\tПравила игры" << endl;
-        cout << "Каждый игрок получает на руки по две карты." << endl;
-        cout << "Любой игрок в свой ход может попросить дополнительную карту, если считает нужным, или отказаться от нее." << endl
+        cout << "\t\t\tРџСЂР°РІРёР»Р° РёРіСЂС‹" << endl;
+        cout << "РљР°Р¶РґС‹Р№ РёРіСЂРѕРє РїРѕР»СѓС‡Р°РµС‚ РЅР° СЂСѓРєРё РїРѕ РґРІРµ РєР°СЂС‚С‹." << endl;
+        cout << "Р›СЋР±РѕР№ РёРіСЂРѕРє РІ СЃРІРѕР№ С…РѕРґ РјРѕР¶РµС‚ РїРѕРїСЂРѕСЃРёС‚СЊ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅСѓСЋ РєР°СЂС‚Сѓ, РµСЃР»Рё СЃС‡РёС‚Р°РµС‚ РЅСѓР¶РЅС‹Рј, РёР»Рё РѕС‚РєР°Р·Р°С‚СЊСЃСЏ РѕС‚ РЅРµРµ." << endl
 
-            << "Игрок может иметь на руках не более 5 карт. Игрок, набравший 21 очко, сразу выигрывает." << endl
-            << "Так же сразу выигрывает игрок набравший \"золотое очко\", то есть имеющий на руках двух тузов." << endl
-            << "Игрок, набравший количество очков большее чем 21, автоматически проигрывает" << endl;
+            << "РРіСЂРѕРє РјРѕР¶РµС‚ РёРјРµС‚СЊ РЅР° СЂСѓРєР°С… РЅРµ Р±РѕР»РµРµ 5 РєР°СЂС‚. РРіСЂРѕРє, РЅР°Р±СЂР°РІС€РёР№ 21 РѕС‡РєРѕ, СЃСЂР°Р·Сѓ РІС‹РёРіСЂС‹РІР°РµС‚." << endl
+            //<< "РўР°Рє Р¶Рµ СЃСЂР°Р·Сѓ РІС‹РёРіСЂС‹РІР°РµС‚ РёРіСЂРѕРє РЅР°Р±СЂР°РІС€РёР№ \"Р·РѕР»РѕС‚РѕРµ РѕС‡РєРѕ\", С‚Рѕ РµСЃС‚СЊ РёРјРµСЋС‰РёР№ РЅР° СЂСѓРєР°С… РґРІСѓС… С‚СѓР·РѕРІ." << endl
+            << "РРіСЂРѕРє, РЅР°Р±СЂР°РІС€РёР№ РєРѕР»РёС‡РµСЃС‚РІРѕ РѕС‡РєРѕРІ Р±РѕР»СЊС€РµРµ С‡РµРј 21, Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РїСЂРѕРёРіСЂС‹РІР°РµС‚" << endl;
 
-        cout << "Игроки набравшие менее 21 очка ждут, пока крупье не доберет карты себе." << endl
-            << "Если сумма очков крупье превышает сумму очков игрока, он проигрывает." << endl
-            << "Если сумма очков крупье меньше суммы очков игрока, игрок выигрывает." << endl << endl;
+        cout << "РРіСЂРѕРєРё РЅР°Р±СЂР°РІС€РёРµ РјРµРЅРµРµ 21 РѕС‡РєР° Р¶РґСѓС‚, РїРѕРєР° РєСЂСѓРїСЊРµ РЅРµ РґРѕР±РµСЂРµС‚ РєР°СЂС‚С‹ СЃРµР±Рµ." << endl
+            << "Р•СЃР»Рё СЃСѓРјРјР° РѕС‡РєРѕРІ РєСЂСѓРїСЊРµ РїСЂРµРІС‹С€Р°РµС‚ СЃСѓРјРјСѓ РѕС‡РєРѕРІ РёРіСЂРѕРєР°, РѕРЅ РїСЂРѕРёРіСЂС‹РІР°РµС‚." << endl
+            << "Р•СЃР»Рё СЃСѓРјРјР° РѕС‡РєРѕРІ РєСЂСѓРїСЊРµ РјРµРЅСЊС€Рµ СЃСѓРјРјС‹ РѕС‡РєРѕРІ РёРіСЂРѕРєР°, РёРіСЂРѕРє РІС‹РёРіСЂС‹РІР°РµС‚." << endl << endl;
 
-        cout << "Номиналы карт: A (туз) - 11 или 1; карты от 2 до 10 имеют соответствующий номинал "
-            << "V (валет) - 2; Q (дама) - 3; K (король) - 4" << endl << endl;
+        cout << "РќРѕРјРёРЅР°Р»С‹ РєР°СЂС‚: A (С‚СѓР·) - 11 РёР»Рё 1; РєР°СЂС‚С‹ РѕС‚ 2 РґРѕ 10 РёРјРµСЋС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РЅРѕРјРёРЅР°Р» "
+            << "V (РІР°Р»РµС‚) - 2; Q (РґР°РјР°) - 3; K (РєРѕСЂРѕР»СЊ) - 4" << endl << endl;
 
     }
 
