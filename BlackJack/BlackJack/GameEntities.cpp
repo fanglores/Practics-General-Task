@@ -177,24 +177,33 @@ public:
             cout << "Введите цифру: ";
 
             ans = secure_cin();
+            cout << endl;
 
             switch (ans)
             {
             case 0:
-                cout << endl << "Завершение работы игры..." << endl << "Надеемся увидеть Вас снова!" << endl;
+                cout << "Завершение работы игры..." << endl << "Надеемся увидеть Вас снова!" << endl;
                 return 0;
 
             case 1:
-                this->playerCount = 1;
+                playerCount = 1;
                 return playerCount;
-
             case 2:
-                cout << "\nВведите количество игроков (не больше 7): ";
-                this->playerCount = secure_cin();
-                return playerCount;
-
+                while (true)
+                {
+                    cout << "Введите количество игроков (не больше 7): ";
+                    playerCount = secure_cin();
+                    if (playerCount >= 1 && playerCount <= 7) return playerCount;
+                    else
+                    {
+                        cout << "Ошибка ввода. Попробуйте ещё раз" << endl;
+                        sys_pause("Нажмите любую клавишу, чтобы повторить ввод...");
+                        system("cls");
+                    }
+                }
+                break;
             case 3:
-                printRules();
+                PrintRules();
                 sys_pause("Для возврата в главное меню нажмите любую клавишу...");
                 break;
             default:
@@ -205,62 +214,12 @@ public:
         }
     }
 
-    void GameFlush(Player* dealer, Player* players)
-    {
-        for (int i = 0; i < playerCount; i++)
-            players[i].PlayerFlush();
-        dealer->PlayerFlush();
-    }
-
-    void PrintStats(Player* dealer, Player* players, Deck* deck, int playerNumber)
-    {
-        system("cls");
-        cout << "\t\t\t(Игрок" << playerNumber + 1 << ") " << players[playerNumber].name << " ходит!" << endl;
-        cout << "Крупье: " << dealer->getFirstCard(deck) << " X" << endl;
-
-        for (int i = 0; i < playerCount; i++)
-            if (i != playerNumber)
-            {
-                cout << players[i].name << ": ";
-                players[i].printCardSet(deck);
-                cout << endl;
-            }
-            else cout << endl;
-        
-        if(playerCount > 1) cout << endl;
-        cout << "Ваша рука: ";
-        players[playerNumber].printCardSet(deck);
-        cout << endl << endl;
-    }
-
-    void DealerGame(Player* dealer, Deck* deck)
-    {
-        while (dealer->getCardSum() < 17 && dealer->getCardsTaken() < 5)
-        {
-            cout << "Сейчас играет крупье..." << endl;
-            cout << "Рука крупье: ";
-            dealer->printCardSet(deck);
-            dealer->takeCard(deck->getCard());
-            Sleep(800);
-            system("cls");
-        }
-
-        cout << "Сейчас играет крупье..." << endl;
-        cout << "Рука крупье: ";
-        dealer->printCardSet(deck);
-        cout << endl << endl;
-        cout << "Крупье сыграл. Набранные очки: " << dealer->getCardSum() << "!" << endl << endl;
-
-        sys_pause("Нажмите любую клавишу, чтобы перейти к подсчёту очков...");
-        system("cls");
-    }
-
     void GameMenu(Player* players, Deck* deck)
     {
         Player dealer;
         dealer.name = "Крупье";
         int ans = 1;
-        
+
         while (ans == 1)
         {
             system("cls");
@@ -362,14 +321,64 @@ public:
         if (player->getCardsTaken() == 5) cout << "Рука заполнена! Больше брать нельзя!" << endl;
         if (player->getCardSum() == 21) cout << "21! Вы выиграли!" << endl;
         else if (player->getCardSum() > 21) cout << "Перебор! Вы проиграли!" << endl;
- 
+
         cout << endl << "Передаем ход следующему игроку..." << endl;
         if (ans == 2) Sleep(1000);
         else sys_pause("Нажмите любую клавишу для подтверждения...");
         system("cls");
     }
 
-    void printRules()
+    void DealerGame(Player* dealer, Deck* deck)
+    {
+        while (dealer->getCardSum() < 17 && dealer->getCardsTaken() < 5)
+        {
+            cout << "Сейчас играет крупье..." << endl;
+            cout << "Рука крупье: ";
+            dealer->printCardSet(deck);
+            dealer->takeCard(deck->getCard());
+            Sleep(800);
+            system("cls");
+        }
+
+        cout << "Сейчас играет крупье..." << endl;
+        cout << "Рука крупье: ";
+        dealer->printCardSet(deck);
+        cout << endl << endl;
+        cout << "Крупье сыграл. Набранные очки: " << dealer->getCardSum() << "!" << endl << endl;
+
+        sys_pause("Нажмите любую клавишу, чтобы перейти к подсчёту очков...");
+        system("cls");
+    }
+
+    void GameFlush(Player* dealer, Player* players)
+    {
+        for (int i = 0; i < playerCount; i++)
+            players[i].PlayerFlush();
+        dealer->PlayerFlush();
+    }
+
+    void PrintStats(Player* dealer, Player* players, Deck* deck, int playerNumber)
+    {
+        system("cls");
+        cout << "\t\t\t(Игрок" << playerNumber + 1 << ") " << players[playerNumber].name << " ходит!" << endl;
+        cout << "Крупье: " << dealer->getFirstCard(deck) << " X" << endl;
+
+        for (int i = 0; i < playerCount; i++)
+            if (i != playerNumber)
+            {
+                cout << players[i].name << ": ";
+                players[i].printCardSet(deck);
+                cout << endl;
+            }
+            else cout << endl;
+
+        if (playerCount > 1) cout << endl;
+        cout << "Ваша рука: ";
+        players[playerNumber].printCardSet(deck);
+        cout << endl << endl;
+    }
+
+    void PrintRules()
     {
         system("cls");
         cout << "\t\t\t\tПравила игры" << endl;
@@ -384,7 +393,8 @@ public:
             << "Если сумма очков крупье меньше суммы очков игрока, игрок выигрывает." << endl
             << "Если количество очков совпадает, то это ничья." << endl << endl;
 
-        cout << "Номиналы карт: A (туз) - 11 или 1; карты от 6 до 10 имеют соответствующий номинал " << endl
+        cout << "В игре используется стандартная колода из 36 карт." << endl
+            << "Номиналы карт: A (туз) - 11 или 1; карты от 6 до 10 имеют соответствующий номинал " << endl
             << "V (валет) - 2; Q (дама) - 3; K (король) - 4; X - карта крупье, рубашкой вверх" << endl << endl;
 
     }
