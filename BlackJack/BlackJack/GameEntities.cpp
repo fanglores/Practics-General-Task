@@ -131,15 +131,13 @@ public:
         Rect.Bottom = 800;
         Rect.Right = 600;
 
-        HANDLE Handle = GetStdHandle(STD_OUTPUT_HANDLE);      // Get Handle 
-        SetConsoleScreenBufferSize(Handle, coord);            // Set Buffer Size 
+        HANDLE Handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        SetConsoleScreenBufferSize(Handle, coord);
         SetConsoleWindowInfo(Handle, TRUE, &Rect);
 
         HWND console = GetConsoleWindow();
         RECT r;
-        GetWindowRect(console, &r); //stores the console's current dimensions
-
-        //MoveWindow(window_handle, x, y, width, height, redraw_window);
+        GetWindowRect(console, &r);
         MoveWindow(console, r.left, r.top, 800, 600, TRUE);
 
     }
