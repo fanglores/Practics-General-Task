@@ -19,8 +19,9 @@ int main()
 
 /*
 To do:
-deck from 6 to 10? russian
-add name to players?
-Less pauses
-When one player plays dont wait OTHER players?
+Русская колода карт Без карт 2..5!!!
+
+имена игрокам?
+выход в главное меню?
+унифицировать размер консоли и шрифт?
 */

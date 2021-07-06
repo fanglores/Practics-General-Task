@@ -10,7 +10,7 @@ class Deck
 {
 private:
     double shuffleFraction;
-    const string card_dict[14] = { "err", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "V", "Q", "K"};
+    const string card_dict[14] = { "err", "A", "0", "0", "0", "0", "6", "7", "8", "9", "10", "V", "Q", "K"};
 
 public:
     Deck()
@@ -72,7 +72,6 @@ public:
 
     void takeCard(int c)
     {
-        //card overtake
         cardsTaken++;
 
         card_flow.push_back(c);
@@ -121,6 +120,11 @@ private:
 
 public:
 
+    Menu()
+    {
+        //set unique console size and text size?
+    }
+
     int secure_cin()
     {
         string str;
@@ -137,7 +141,6 @@ public:
     {
         string tmp;
         cout << out << endl;
-        //clear buff?
         cin.clear();
         cin.sync();
         _getch();
@@ -154,7 +157,6 @@ public:
             cout << "1. Одиночная игра\n2. Совместная игра\n3. Правила игры\n0. Выход" << endl << endl;
             cout << "Введите цифру: ";
 
-            //SECURE INPUT
             ans = secure_cin();
 
             switch (ans)
@@ -169,7 +171,6 @@ public:
 
             case 2:
                 cout << "\nВведите количество игроков (не больше 7): ";
-                //SECURE INPUT
                 this->playerCount = secure_cin();
                 return playerCount;
 
@@ -211,7 +212,6 @@ public:
         cout << "Ваша рука: ";
         players[playerNumber].printCardSet(deck);
         cout << endl << endl;
-        //Sleep(500);
     }
 
     void DealerGame(Player* dealer, Deck* deck)
@@ -275,7 +275,6 @@ public:
                     int ds = dealer.getCardSum(), ps = players[i].getCardSum();
                     cout << "(Игрок" << i + 1 << ") " << players[i].name << " набрал " << players[i].getCardSum() << "!\t";
 
-                    //IMPROVE SCORE SYSTEM?
                     if (ps < 21)
                     {
                         if (ps > ds) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(100); }
@@ -298,7 +297,6 @@ public:
                     //выход в главное меню?
                     cout << "Сыграть ещё раз?\n1. Играть\n2. Выйти из игры\n\nВведите цифру: ";
 
-                    //SECURE INPUT
                     ans = secure_cin();
 
                     if (ans != 2 && ans != 1)
@@ -323,7 +321,6 @@ public:
             PrintStats(dealer, players, deck, playerNumber);
             cout << "Сделайте ход:\n1. Добрать\n2. Закончить ход\n\n>>";
 
-            //INPUT SECURE
             ans = secure_cin();
 
             if (ans == 1)
@@ -344,7 +341,7 @@ public:
         else if (player->getCardSum() > 21) cout << "Перебор! Вы проиграли!" << endl;
 
         cout << endl << "Передаем ход следующему игроку..." << endl;
-        sys_pause("Подтвердите, нажав любую клавишу...");
+        Sleep(1000);
         system("cls");
     }
 
@@ -356,14 +353,14 @@ public:
         cout << "Любой игрок в свой ход может попросить дополнительную карту, если считает нужным, или отказаться от нее." << endl
 
             << "Игрок может иметь на руках не более 5 карт. Игрок, набравший 21 очко, сразу выигрывает." << endl
-            //<< "Так же сразу выигрывает игрок набравший \"золотое очко\", то есть имеющий на руках двух тузов." << endl
             << "Игрок, набравший количество очков большее чем 21, автоматически проигрывает" << endl;
 
         cout << "Игроки набравшие менее 21 очка ждут, пока крупье не доберет карты себе." << endl
             << "Если сумма очков крупье превышает сумму очков игрока, игрок проигрывает." << endl
-            << "Если сумма очков крупье меньше суммы очков игрока, игрок выигрывает." << endl << endl;
+            << "Если сумма очков крупье меньше суммы очков игрока, игрок выигрывает." << endl
+            << "Если количество очков совпадает, то это ничья." << endl << endl;
 
-        cout << "Номиналы карт: A (туз) - 11 или 1; карты от 2 до 10 имеют соответствующий номинал "
+        cout << "Номиналы карт: A (туз) - 11 или 1; карты от 2 до 10 имеют соответствующий номинал " << endl
             << "V (валет) - 2; Q (дама) - 3; K (король) - 4" << endl << endl;
 
     }
