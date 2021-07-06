@@ -1,9 +1,11 @@
+#define _WIN32_WINNT 0x0500
 #include "GameEntities.cpp"
 
 int main()
 {
 	setlocale(LC_ALL, "rus");
-	Menu menu;
+
+	Menu menu(100, 300);
 
 	int code = menu.MainMenu();
 	if (code != 0)
@@ -19,9 +21,9 @@ int main()
 
 /*
 To do:
-Русская колода карт Без карт 2..5!!!
+fix: система подсчета - когда у дилера перебор, игрок проигрывает
 
 имена игрокам?
 выход в главное меню?
-унифицировать размер консоли и шрифт?
+унифицировать шрифт?
 */

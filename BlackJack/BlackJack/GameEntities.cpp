@@ -10,7 +10,8 @@ class Deck
 {
 private:
     double shuffleFraction;
-    const string card_dict[14] = { "err", "A", "0", "0", "0", "0", "6", "7", "8", "9", "10", "V", "Q", "K"};
+    const int deck_size = 9;
+    const string card_dict[9] = { "A", "6", "7", "8", "9", "10", "V", "Q", "K"};
 
 public:
     Deck()
@@ -21,7 +22,7 @@ public:
 
     int getCard()
     {
-        return static_cast<int>(rand() * shuffleFraction * 13 + 1);
+        return static_cast<int>(rand() * shuffleFraction * deck_size);
     }
 
     string decodeCard(int n)
@@ -33,9 +34,11 @@ public:
 class Player
 {
 private:
-    vector<int> card_set, card_flow;
+    vector<int> card_flow;
     int cardsTaken = 0;
     int card_sum = 0;
+    int aces_cnt = 0;
+
     int Score = 100;
 
 public:
@@ -45,7 +48,6 @@ public:
     {
         static int player_cnt = 1;
         name = string("Игрок" + to_string(player_cnt));
-        card_set.resize(14, 0);
         card_flow.resize(0);
         player_cnt++;
     }
@@ -53,7 +55,7 @@ public:
     int getCardSum()
     {
         int sum = card_sum;
-        int aces_cnt = card_set[1];
+        int aces_cnt = this->aces_cnt;
 
         while (card_sum > 21 && aces_cnt > 0)
         {
@@ -73,13 +75,11 @@ public:
     void takeCard(int c)
     {
         cardsTaken++;
-
         card_flow.push_back(c);
-        card_set[c]++;
 
-        if (c == 1) card_sum += 11;
-        else if (c >= 11) card_sum += c % 9;
-        else card_sum += c;
+        if (c == 0) card_sum += 11;
+        else if (c >= 6) card_sum += (c - 4);
+        else card_sum += (c + 5);
     }
 
     string getFirstCard(Deck* deck)
@@ -89,11 +89,10 @@ public:
 
     void PlayerFlush()
     {
-        card_set.clear();
-        card_set.resize(14, 0);
         card_flow.clear();
         cardsTaken = 0;
         card_sum = 0;
+        aces_cnt = 0;
     }
 
     int getCardsTaken()
@@ -120,9 +119,29 @@ private:
 
 public:
 
-    Menu()
+    Menu(int Width, int Height)
     {
-        //set unique console size and text size?
+        _COORD coord;
+        coord.X = Width;
+        coord.Y = Height;
+
+        _SMALL_RECT Rect;
+        Rect.Top = 0;
+        Rect.Left = 0;
+        Rect.Bottom = 800;
+        Rect.Right = 600;
+
+        HANDLE Handle = GetStdHandle(STD_OUTPUT_HANDLE);      // Get Handle 
+        SetConsoleScreenBufferSize(Handle, coord);            // Set Buffer Size 
+        SetConsoleWindowInfo(Handle, TRUE, &Rect);
+
+        HWND console = GetConsoleWindow();
+        RECT r;
+        GetWindowRect(console, &r); //stores the console's current dimensions
+
+        //MoveWindow(window_handle, x, y, width, height, redraw_window);
+        MoveWindow(console, r.left, r.top, 800, 600, TRUE);
+
     }
 
     int secure_cin()
@@ -275,6 +294,7 @@ public:
                     int ds = dealer.getCardSum(), ps = players[i].getCardSum();
                     cout << "(Игрок" << i + 1 << ") " << players[i].name << " набрал " << players[i].getCardSum() << "!\t";
 
+                    //IMPROVE SCORE SYSTEM
                     if (ps < 21)
                     {
                         if (ps > ds) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(100); }
@@ -312,8 +332,11 @@ public:
 
     void TurnMenu(Player* dealer, Player* players, Deck* deck, int playerNumber)
     {
-        int ans;
+        int ans = 0;
         Player* player = &players[playerNumber];
+
+        system("cls");
+        PrintStats(dealer, players, deck, playerNumber);
 
         while (player->getCardSum() < 21 && player->getCardsTaken() < 5)
         {
@@ -339,9 +362,10 @@ public:
         if (player->getCardsTaken() == 5) cout << "Рука заполнена! Больше брать нельзя!" << endl;
         if (player->getCardSum() == 21) cout << "21! Вы выиграли!" << endl;
         else if (player->getCardSum() > 21) cout << "Перебор! Вы проиграли!" << endl;
-
+ 
         cout << endl << "Передаем ход следующему игроку..." << endl;
-        Sleep(1000);
+        if (ans == 2) Sleep(1000);
+        else sys_pause("Нажмите любую клавишу для подтверждения...");
         system("cls");
     }
 
@@ -350,8 +374,8 @@ public:
         system("cls");
         cout << "\t\t\t\tПравила игры" << endl;
         cout << "Каждый игрок получает на руки по две карты." << endl;
-        cout << "Любой игрок в свой ход может попросить дополнительную карту, если считает нужным, или отказаться от нее." << endl
-
+        cout << "Любой игрок в свой ход может попросить дополнительную карту, если считает нужным," << endl
+            << "или отказаться от нее." << endl
             << "Игрок может иметь на руках не более 5 карт. Игрок, набравший 21 очко, сразу выигрывает." << endl
             << "Игрок, набравший количество очков большее чем 21, автоматически проигрывает" << endl;
 
@@ -360,8 +384,8 @@ public:
             << "Если сумма очков крупье меньше суммы очков игрока, игрок выигрывает." << endl
             << "Если количество очков совпадает, то это ничья." << endl << endl;
 
-        cout << "Номиналы карт: A (туз) - 11 или 1; карты от 2 до 10 имеют соответствующий номинал " << endl
-            << "V (валет) - 2; Q (дама) - 3; K (король) - 4" << endl << endl;
+        cout << "Номиналы карт: A (туз) - 11 или 1; карты от 6 до 10 имеют соответствующий номинал " << endl
+            << "V (валет) - 2; Q (дама) - 3; K (король) - 4; X - карта крупье, рубашкой вверх" << endl << endl;
 
     }
 
