@@ -251,20 +251,48 @@ public:
                     int ds = dealer.getCardSum(), ps = players[i].getCardSum();
                     cout << "(Игрок" << i + 1 << ") " << players[i].name << " набрал " << players[i].getCardSum() << "!\t";
 
-                    //IMPROVE SCORE SYSTEM
                     if (ps < 21)
                     {
-                        if (ps > ds) { cout << players[i].name << " выигрывает!" << endl << endl; players[i].setScore(100); }
-                        else if (ps < ds) { cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(-50); }
-                        else cout << "Ничья!" << endl << endl;
+                        if(ds > 21)
+                        {
+                            cout << players[i].name << " выигрывает!" << endl << endl;
+                            players[i].setScore(100);
+                        }
+                        else
+                        {
+                            if (ps > ds)
+                            {
+                                cout << players[i].name << " выигрывает!" << endl << endl;
+                                players[i].setScore(100);
+                            }
+                            else if (ps < ds)
+                            {
+                                cout << players[i].name << " проигрывает!" << endl << endl;
+                                players[i].setScore(-50);
+                            }
+                            else cout << "Ничья!" << endl << endl;
+                        }
                     }
                     else if (ps == 21)
                     {
-                        cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(-50);
+                        if (ds == 21) cout << "Ничья!" << endl << endl;
+                        else
+                        {
+                            cout << players[i].name << " выигрывает!" << endl << endl;
+                            players[i].setScore(100);
+                        }
                     }
                     else
                     {
-                        cout << players[i].name << " проигрывает!" << endl << endl; players[i].setScore(-50);
+                        if (ds > 21)
+                        {
+                            cout << "Ничья!" << endl << endl;
+                        }
+                        else 
+                        { 
+                            cout << players[i].name << " проигрывает!" << endl << endl; 
+                            players[i].setScore(-50); 
+                        }
                     }
                 }
 
@@ -392,7 +420,8 @@ public:
             << "Если количество очков совпадает, то это ничья." << endl << endl;
 
         cout << "В игре используется стандартная колода из 36 карт." << endl
-            << "Номиналы карт: A (туз) - 11 или 1; карты от 6 до 10 имеют соответствующий номинал " << endl
+            << "Номиналы карт: A (туз) - 11 или 1, если сумма карт в руке превышает 21;" << endl
+            << "карты от 6 до 10 имеют соответствующий номинал " << endl
             << "V (валет) - 2; Q (дама) - 3; K (король) - 4; X - карта крупье, рубашкой вверх" << endl << endl;
 
     }
