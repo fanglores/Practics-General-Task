@@ -10,19 +10,52 @@ class Deck
 {
 private:
     double shuffleFraction;
-    const int deck_size = 9;
-    const string card_dict[9] = { "A", "6", "7", "8", "9", "10", "V", "Q", "K"};
+    const vector<string> card_dict = { "A", "6", "7", "8", "9", "10", "V", "Q", "K" };
+    vector<string> shuffled_deck;
 
 public:
     Deck()
     {
         srand(time(NULL));
-        this->shuffleFraction = 1.0 / (static_cast<double>(RAND_MAX) + 1.0);
+        shuffleFraction = 1.0 / (static_cast<double>(RAND_MAX) + 1.0);
+        ShuffleDeck();
+    }
+
+    void ShuffleDeck()
+    {
+        vector<int> cnt(9, 0);
+        int i;
+
+        while (shuffled_deck.size() < 36)
+        {
+            i = static_cast<int>(rand() * shuffleFraction * cnt.size());
+            if(cnt[i] < 4) shuffled_deck.push_back(card_dict[i]);
+
+            cnt[i]++;
+        }
+        cout << shuffled_deck[0];
+    }
+
+    void DeckFlush()
+    {
+        shuffled_deck.clear();
+        ShuffleDeck();
     }
 
     int getCard()
     {
-        return static_cast<int>(rand() * shuffleFraction * deck_size);
+        string tmp = shuffled_deck.back();
+        shuffled_deck.pop_back();
+
+        if (tmp == "A")  return 0;
+        if (tmp == "6")  return 1;
+        if (tmp == "7")  return 2;
+        if (tmp == "8")  return 3;
+        if (tmp == "9")  return 4;
+        if (tmp == "10") return 5;
+        if (tmp == "V")  return 6;
+        if (tmp == "Q")  return 7;
+        if (tmp == "K")  return 8;
     }
 
     string decodeCard(int n)
@@ -39,7 +72,7 @@ private:
     int card_sum = 0;
     int aces_cnt = 0;
 
-    int Score = 100;
+    int Score = 0;
 
 public:
     string name;
@@ -77,7 +110,11 @@ public:
         cardsTaken++;
         card_flow.push_back(c);
 
-        if (c == 0) card_sum += 11;
+        if (c == 0)
+        {
+            card_sum += 11;
+            aces_cnt++;
+        }
         else if (c >= 6) card_sum += (c - 4);
         else card_sum += (c + 5);
     }
@@ -100,9 +137,9 @@ public:
         return cardsTaken;
     }
 
-    void setScore(int d)
+    void setScore()
     {
-        Score += d;
+        Score++;
     }
 
     int getScore()
@@ -115,7 +152,7 @@ public:
 class Menu
 {
 private:
-    int playerCount;
+    int playerCount = 1;
 
 public:
 
@@ -221,7 +258,7 @@ public:
         while (ans == 1)
         {
             system("cls");
-            GameFlush(&dealer, players);
+            GameFlush(&dealer, players, deck);
 
             for (int i = 0; i < playerCount; i++) players[i].takeCard(deck->getCard());
             dealer.takeCard(deck->getCard());
@@ -246,6 +283,7 @@ public:
                 else if (dealer.getCardSum() == 21) cout << "Крупье выигрывает!" << endl;
                 cout << endl;
 
+                dealer.setScore();
                 for (int i = 0; i < playerCount; i++)
                 {
                     int ds = dealer.getCardSum(), ps = players[i].getCardSum();
@@ -255,46 +293,58 @@ public:
                     {
                         if(ds > 21)
                         {
-                            cout << players[i].name << " выигрывает!" << endl << endl;
-                            players[i].setScore(100);
+                            cout << players[i].name << " выигрывает!" << endl;
+                            players[i].setScore();
                         }
                         else
                         {
                             if (ps > ds)
                             {
-                                cout << players[i].name << " выигрывает!" << endl << endl;
-                                players[i].setScore(100);
+                                cout << players[i].name << " выигрывает!" << endl;
+                                players[i].setScore();
                             }
                             else if (ps < ds)
                             {
-                                cout << players[i].name << " проигрывает!" << endl << endl;
-                                players[i].setScore(-50);
+                                cout << players[i].name << " проигрывает!" << endl;
                             }
-                            else cout << "Ничья!" << endl << endl;
+                            else
+                            {
+                                cout << "Ничья!" << endl;
+                            }
                         }
                     }
                     else if (ps == 21)
                     {
-                        if (ds == 21) cout << "Ничья!" << endl << endl;
+                        if (ds == 21)
+                        {
+                            cout << "Ничья!" << endl;
+                        }
                         else
                         {
-                            cout << players[i].name << " выигрывает!" << endl << endl;
-                            players[i].setScore(100);
+                            cout << players[i].name << " выигрывает!" << endl;
+                            players[i].setScore();
                         }
                     }
                     else
                     {
                         if (ds > 21)
                         {
-                            cout << "Ничья!" << endl << endl;
+                            cout << "Ничья!" << endl;
                         }
                         else 
                         { 
-                            cout << players[i].name << " проигрывает!" << endl << endl; 
-                            players[i].setScore(-50); 
+                            cout << players[i].name << " проигрывает!" << endl; 
                         }
                     }
                 }
+
+                cout << endl << "Всего игр - " << dealer.getScore() << "; Общий счёт побед:" << endl;
+                for (int i = 0; i < playerCount; i++)
+                {
+                    cout << players[i].name << " - " << players[i].getScore() << "; ";
+                    if (i % 3 == 2 && i != playerCount - 1) cout << endl;
+                }
+                cout << endl << endl;
 
                 ans = 0;
                 while (ans != 1 && ans != 2)
@@ -376,11 +426,12 @@ public:
         system("cls");
     }
 
-    void GameFlush(Player* dealer, Player* players)
+    void GameFlush(Player* dealer, Player* players, Deck* deck)
     {
         for (int i = 0; i < playerCount; i++)
             players[i].PlayerFlush();
         dealer->PlayerFlush();
+        deck->DeckFlush();
     }
 
     void PrintStats(Player* dealer, Player* players, Deck* deck, int playerNumber)
