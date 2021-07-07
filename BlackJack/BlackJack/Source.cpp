@@ -14,7 +14,7 @@ int main()
 		cnt++;
 		vect[dk.getCard()]++;
 
-		if (i == 100000)
+		if (i % 100000 == 0)
 		{
 			for (long long unsigned int j : vect) cout << (double)j / cnt << " ";
 			cout << endl;
