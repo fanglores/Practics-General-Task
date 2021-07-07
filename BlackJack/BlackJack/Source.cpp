@@ -4,6 +4,7 @@ int main()
 {
 	setlocale(LC_ALL, "rus");
 
+	/*
 	vector<long long unsigned int> vect(9, 0);
 	Deck dk;
 
@@ -22,8 +23,8 @@ int main()
 
 		i++;
 	}
-
-	/*
+	*/
+	
 	Menu menu(100, 300);
 
 	int code = menu.MainMenu();
@@ -34,7 +35,7 @@ int main()
 		Deck deck;
 		menu.GameMenu(player_array, &deck);
 	}
-	*/
+	
 	return 0;
 }
 
