@@ -3,27 +3,6 @@
 int main()
 {
 	setlocale(LC_ALL, "rus");
-
-	/*
-	vector<long long unsigned int> vect(9, 0);
-	Deck dk;
-
-	long long unsigned int i = 0, cnt = 0;
-
-	while (true)
-	{
-		cnt++;
-		vect[dk.getCard()]++;
-
-		if (i % 100000 == 0)
-		{
-			for (long long unsigned int j : vect) cout << (double)j / cnt << " ";
-			cout << endl;
-		}
-
-		i++;
-	}
-	*/
 	
 	Menu menu(100, 300);
 
@@ -42,7 +21,7 @@ int main()
 
 /*
 To do:
-èìåíà èãðîêàì?
-âûõîä â ãëàâíîå ìåíþ?
-óíèôèöèðîâàòü øðèôò?
+Ð¸Ð¼ÐµÐ½Ð° Ð¸Ð³Ñ€Ð¾ÐºÐ°Ð¼?
+Ð²Ñ‹Ñ…Ð¾Ð´ Ð² Ð³Ð»Ð°Ð²Ð½Ð¾Ðµ Ð¼ÐµÐ½ÑŽ?
+ÑƒÐ½Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ ÑˆÑ€Ð¸Ñ„Ñ‚?
 */
