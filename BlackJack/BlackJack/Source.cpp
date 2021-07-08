@@ -33,10 +33,7 @@ int main()
 	cout << "Ввод корректного числа 1: ";
 	cout << "Функция ввода вернула: " << mn.secure_cin() << endl << endl;
 
-	cout << "Ввод корректного числа 1: ";
-	cout << "Функция ввода вернула: " << mn.secure_cin() << endl << endl;
-
-	cout << "Ввод корректного числа 1: ";
+	cout << "Ввод корректного числа 2: ";
 	cout << "Функция ввода вернула: " << mn.secure_cin() << endl << endl;
 
 	cout << endl << string(100, '=') << "\t\t\tTest 2" << endl << string(100, '=') << endl;
