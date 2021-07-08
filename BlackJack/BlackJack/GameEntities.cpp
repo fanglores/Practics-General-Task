@@ -144,6 +144,7 @@ class Menu
 {
 private:
     int playerCount = 1;
+    int gameCount = 0;
 
 public:
 
@@ -248,6 +249,7 @@ public:
 
         while (ans == 1)
         {
+            gameCount++;
             system("cls");
             GameFlush(&dealer, players, deck);
 
@@ -274,7 +276,6 @@ public:
                 else if (dealer.getCardSum() == 21) cout << "Крупье выигрывает!" << endl;
                 cout << endl;
 
-                dealer.setScore();
                 for (int i = 0; i < playerCount; i++)
                 {
                     int ds = dealer.getCardSum(), ps = players[i].getCardSum();
@@ -297,6 +298,7 @@ public:
                             else if (ps < ds)
                             {
                                 cout << players[i].name << " проигрывает!" << endl;
+                                dealer.setScore();
                             }
                             else
                             {
@@ -325,11 +327,13 @@ public:
                         else 
                         { 
                             cout << players[i].name << " проигрывает!" << endl; 
+                            dealer.setScore();
                         }
                     }
                 }
 
-                cout << endl << "Всего игр - " << dealer.getScore() << ";" << endl << "Общий счёт побед: " << endl;
+                cout << endl << "Всего игр - " << gameCount << ";" << endl << "Общий счёт побед: " << endl;
+                cout << "Крупье - " << dealer.getScore() << "; " << endl;
                 for (int i = 0; i < playerCount; i++)
                 {
                     cout << players[i].name << " - " << players[i].getScore() << "; ";
