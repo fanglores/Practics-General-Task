@@ -329,7 +329,7 @@ public:
                     }
                 }
 
-                cout << endl << "Всего игр - " << dealer.getScore() << ";" << endl << "Общий счёт побед : " << endl;
+                cout << endl << "Всего игр - " << dealer.getScore() << ";" << endl << "Общий счёт побед: " << endl;
                 for (int i = 0; i < playerCount; i++)
                 {
                     cout << players[i].name << " - " << players[i].getScore() << "; ";
