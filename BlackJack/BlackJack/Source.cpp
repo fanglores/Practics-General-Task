@@ -4,6 +4,24 @@ int main()
 {
 	setlocale(LC_ALL, "rus");
 	
+	Deck dk;
+
+	cout << "Начальная колода: ";
+	for (int i = 0; i < 36; i++)
+		cout << dk.decodeCard(dk.getCard());
+
+	dk.ShuffleDeck();
+	cout << endl << "Начальная колода: ";
+	for (int i = 0; i < 36; i++)
+		cout << dk.decodeCard(dk.getCard());
+
+	dk.DeckFlush();
+	cout << endl << "Начальная колода: ";
+	for (int i = 0; i < 36; i++)
+		cout << dk.decodeCard(dk.getCard());
+
+
+	/*
 	Menu menu(100, 300);
 
 	int code = menu.MainMenu();
@@ -14,7 +32,7 @@ int main()
 		Deck deck;
 		menu.GameMenu(player_array, &deck);
 	}
-	
+	*/
 	return 0;
 }
 
