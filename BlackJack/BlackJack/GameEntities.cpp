@@ -11,7 +11,7 @@ class Deck
 private:
     double shuffleFraction;
     const vector<string> card_dict = { "A", "6", "7", "8", "9", "10", "V", "Q", "K" };
-    vector<string> shuffled_deck;
+    vector<int> shuffled_deck;
 
 public:
     Deck()
@@ -29,11 +29,10 @@ public:
         while (shuffled_deck.size() < 36)
         {
             i = static_cast<int>(rand() * shuffleFraction * cnt.size());
-            if(cnt[i] < 4) shuffled_deck.push_back(card_dict[i]);
+            if(cnt[i] < 4) shuffled_deck.push_back(i);
 
             cnt[i]++;
         }
-        cout << shuffled_deck[0];
     }
 
     void DeckFlush()
@@ -44,18 +43,10 @@ public:
 
     int getCard()
     {
-        string tmp = shuffled_deck.back();
+        int tmp = shuffled_deck.back();
         shuffled_deck.pop_back();
 
-        if (tmp == "A")  return 0;
-        if (tmp == "6")  return 1;
-        if (tmp == "7")  return 2;
-        if (tmp == "8")  return 3;
-        if (tmp == "9")  return 4;
-        if (tmp == "10") return 5;
-        if (tmp == "V")  return 6;
-        if (tmp == "Q")  return 7;
-        if (tmp == "K")  return 8;
+        return tmp;
     }
 
     string decodeCard(int n)
@@ -338,7 +329,7 @@ public:
                     }
                 }
 
-                cout << endl << "Всего игр - " << dealer.getScore() << "; Общий счёт побед:" << endl;
+                cout << endl << "Всего игр - " << dealer.getScore() << ";" << endl << "Общий счёт побед : " << endl;
                 for (int i = 0; i < playerCount; i++)
                 {
                     cout << players[i].name << " - " << players[i].getScore() << "; ";
