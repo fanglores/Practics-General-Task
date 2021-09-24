@@ -1,28 +1,52 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include <vector>
 #include <string>
 #include <time.h>
 #include <Windows.h>
+#include <conio.h>
 using namespace std;
-
-#define _CRT_SECURE_NO_WARNINGS
 
 class Deck
 {
 private:
     double shuffleFraction;
-    const string card_dict[14] = { "err", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "V", "Q", "K"};
+    const vector<string> card_dict = { "A", "6", "7", "8", "9", "10", "V", "Q", "K" };
+    vector<int> shuffled_deck;
 
 public:
     Deck()
     {
         srand(time(NULL));
-        this->shuffleFraction = 1.0 / (static_cast<double>(RAND_MAX) + 1.0);
+        shuffleFraction = 1.0 / (static_cast<double>(RAND_MAX) + 1.0);
+        ShuffleDeck();
+    }
+
+    void ShuffleDeck()
+    {
+        vector<int> cnt(9, 0);
+        int i;
+
+        while (shuffled_deck.size() < 36)
+        {
+            i = static_cast<int>(rand() * shuffleFraction * cnt.size());
+            if(cnt[i] < 4) shuffled_deck.push_back(i);
+
+            cnt[i]++;
+        }
+    }
+
+    void DeckFlush()
+    {
+        shuffled_deck.clear();
+        ShuffleDeck();
     }
 
     int getCard()
     {
-        return static_cast<int>(rand() * shuffleFraction * 13 + 1);
+        int tmp = shuffled_deck.back();
+        shuffled_deck.pop_back();
+
+        return tmp;
     }
 
     string decodeCard(int n)
@@ -34,9 +58,12 @@ public:
 class Player
 {
 private:
-    vector<int> card_set, card_flow;
+    vector<int> card_flow;
+    int cardsTaken = 0;
     int card_sum = 0;
-    int Score = 100;
+    int aces_cnt = 0;
+
+    int Score = 0;
 
 public:
     string name;
@@ -44,17 +71,17 @@ public:
     Player()
     {
         static int player_cnt = 1;
-        name = string("Èãðîê" + to_string(player_cnt));
-        card_set.resize(14, 0);
+        name = string("Ð˜Ð³Ñ€Ð¾Ðº" + to_string(player_cnt));
+        card_flow.resize(0);
         player_cnt++;
     }
 
     int getCardSum()
     {
         int sum = card_sum;
-        int aces_cnt = card_set[1];
+        int aces_cnt = this->aces_cnt;
 
-        while (card_sum > 21 && aces_cnt > 0)
+        while (sum > 21 && aces_cnt > 0)
         {
             sum -= 10;
             aces_cnt--;
@@ -65,27 +92,22 @@ public:
 
     void printCardSet(Deck* deck)
     {
-        for (int c = 1; c < 14; c++)
-            for (int i = 0; i < card_set[c]; i++)
-            {
-                //Sleep(600);
-                cout << deck->decodeCard(c) << " ";
-            }
+        for (int i = 0; i < cardsTaken; i++)
+            cout << deck->decodeCard(card_flow[i]) << " ";
     }
 
     void takeCard(int c)
     {
-        //card overtake
-        if (card_flow.size() >= 5)
-        {
-            cout << "Áîëüøå íåëüçÿ!";
-        }
-
+        cardsTaken++;
         card_flow.push_back(c);
-        card_set[c]++;
-        if (c == 1) card_sum += 11;
-        else if (c >= 11) card_sum += c % 9;
-        else card_sum += c;
+
+        if (c == 0)
+        {
+            card_sum += 11;
+            aces_cnt++;
+        }
+        else if (c >= 6) card_sum += (c - 4);
+        else card_sum += (c + 5);
     }
 
     string getFirstCard(Deck* deck)
@@ -95,15 +117,20 @@ public:
 
     void PlayerFlush()
     {
-        card_set.clear();
-        card_set.resize(14, 0);
         card_flow.clear();
+        cardsTaken = 0;
         card_sum = 0;
+        aces_cnt = 0;
     }
 
-    void setScore(int d)
+    int getCardsTaken()
     {
-        Score += d;
+        return cardsTaken;
+    }
+
+    void setScore()
+    {
+        Score++;
     }
 
     int getScore()
@@ -113,121 +140,118 @@ public:
 
 };
 
-
 class Menu
 {
 private:
-    int playerCount;
+    int playerCount = 1;
+    int gameCount = 0;
 
 public:
+
+    Menu(int Width, int Height)
+    {
+        _COORD coord;
+        coord.X = Width;
+        coord.Y = Height;
+
+        _SMALL_RECT Rect;
+        Rect.Top = 0;
+        Rect.Left = 0;
+        Rect.Bottom = 800;
+        Rect.Right = 600;
+
+        HANDLE Handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        SetConsoleScreenBufferSize(Handle, coord);
+        SetConsoleWindowInfo(Handle, TRUE, &Rect);
+
+        HWND console = GetConsoleWindow();
+        RECT r;
+        GetWindowRect(console, &r);
+        MoveWindow(console, r.left, r.top, 800, 600, TRUE);
+
+    }
+
+    int secure_cin()
+    {
+        string str;
+        getline(cin, str);
+        if (str.size() > 1) return -1;
+        else
+        {
+            if (str[0] >= '0' && str[0] <= '9') return (str[0] - '0');
+            else return -1;
+        }
+    }
+
+    void sys_pause(string out)
+    {
+        string tmp;
+        cout << out << endl;
+        cin.clear();
+        cin.sync();
+        _getch();
+    }
 
     int MainMenu()
     {
         int ans;
+        
         while (true)
         {
             system("cls");
-            cout << "Äîáðî ïîæàëîâàòü â èãðó 21!" << endl << endl;
-            cout << "1. Îäèíî÷íàÿ èãðà\n2. Ñîâìåñòíàÿ èãðà\n3. Ïðàâèëà èãðû\n0. Âûõîä" << endl << endl;
-            cout << "Ââåäèòå ÷èñëî: ";
+            cout << "Ð”Ð¾Ð±Ñ€Ð¾ Ð¿Ð¾Ð¶Ð°Ð»Ð¾Ð²Ð°Ñ‚ÑŒ Ð² Ð¸Ð³Ñ€Ñƒ 21!" << endl << endl;
+            cout << "1. ÐžÐ´Ð¸Ð½Ð¾Ñ‡Ð½Ð°Ñ Ð¸Ð³Ñ€Ð°\n2. Ð¡Ð¾Ð²Ð¼ÐµÑÑ‚Ð½Ð°Ñ Ð¸Ð³Ñ€Ð°\n3. ÐŸÑ€Ð°Ð²Ð¸Ð»Ð° Ð¸Ð³Ñ€Ñ‹\n0. Ð’Ñ‹Ñ…Ð¾Ð´" << endl << endl;
+            cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ñ†Ð¸Ñ„Ñ€Ñƒ: ";
 
-            //INPUT SECURE
-            if (scanf("%d", &ans)) cout << "scanf!";
-            else cout << "err";
+            ans = secure_cin();
+            cout << endl;
 
             switch (ans)
             {
             case 0:
+                cout << "Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¸Ðµ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ð¸Ð³Ñ€Ñ‹..." << endl << "ÐÐ°Ð´ÐµÐµÐ¼ÑÑ ÑƒÐ²Ð¸Ð´ÐµÑ‚ÑŒ Ð’Ð°Ñ ÑÐ½Ð¾Ð²Ð°!" << endl;
                 return 0;
 
             case 1:
-                this->playerCount = 1;
+                playerCount = 1;
                 return playerCount;
-
             case 2:
-                cout << "\nÂâåäèòå êîëè÷åñòâî èãðîêîâ (íå áîëüøå 7): ";
-                cin >> this->playerCount;
-                return playerCount;
-
+                while (true)
+                {
+                    cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¸Ð³Ñ€Ð¾ÐºÐ¾Ð² (Ð½Ðµ Ð±Ð¾Ð»ÑŒÑˆÐµ 7): ";
+                    playerCount = secure_cin();
+                    if (playerCount >= 1 && playerCount <= 7) return playerCount;
+                    else
+                    {
+                        cout << "ÐžÑˆÐ¸Ð±ÐºÐ° Ð²Ð²Ð¾Ð´Ð°. ÐŸÐ¾Ð¿Ñ€Ð¾Ð±ÑƒÐ¹Ñ‚Ðµ ÐµÑ‰Ñ‘ Ñ€Ð°Ð·" << endl;
+                        sys_pause("ÐÐ°Ð¶Ð¼Ð¸Ñ‚Ðµ Ð»ÑŽÐ±ÑƒÑŽ ÐºÐ»Ð°Ð²Ð¸ÑˆÑƒ, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¿Ð¾Ð²Ñ‚Ð¾Ñ€Ð¸Ñ‚ÑŒ Ð²Ð²Ð¾Ð´...");
+                        system("cls");
+                    }
+                }
+                break;
             case 3:
-                printRules();
-                system("pause");
+                PrintRules();
+                sys_pause("Ð”Ð»Ñ Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‚Ð° Ð² Ð³Ð»Ð°Ð²Ð½Ð¾Ðµ Ð¼ÐµÐ½ÑŽ Ð½Ð°Ð¶Ð¼Ð¸Ñ‚Ðµ Ð»ÑŽÐ±ÑƒÑŽ ÐºÐ»Ð°Ð²Ð¸ÑˆÑƒ...");
                 break;
             default:
-                cout << "Îøèáêà ââîäà. Ïîïðîáóéòå åù¸ ðàç" << endl;
-                system("pause");
+                cout << "ÐžÑˆÐ¸Ð±ÐºÐ° Ð²Ð²Ð¾Ð´Ð°. ÐŸÐ¾Ð¿Ñ€Ð¾Ð±ÑƒÐ¹Ñ‚Ðµ ÐµÑ‰Ñ‘ Ñ€Ð°Ð·" << endl;
+                sys_pause("ÐÐ°Ð¶Ð¼Ð¸Ñ‚Ðµ Ð»ÑŽÐ±ÑƒÑŽ ÐºÐ»Ð°Ð²Ð¸ÑˆÑƒ, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¿Ð¾Ð²Ñ‚Ð¾Ñ€Ð¸Ñ‚ÑŒ Ð²Ð²Ð¾Ð´...");
                 break;
             }
         }
-    }
-
-    void GameFlush(Player* dealer, Player* players)
-    {
-        for (int i = 0; i < playerCount; i++)
-            players[i].PlayerFlush();
-        dealer->PlayerFlush();
-    }
-
-    void PrintStats(Player* dealer, Player* players, Deck* deck, int playerNumber)
-    {
-        system("cls");
-        cout << "\t\t\t(Èãðîê" << playerNumber + 1 << ") " << players[playerNumber].name << " õîäèò!" << endl;
-        cout << "Êðóïüå: ";
-
-        //Sleep(500);
-        cout << dealer->getFirstCard(deck);
-        //Sleep(500);
-        cout << " X" << endl;
-        //Sleep(500);
-
-        for (int i = 0; i < playerCount; i++)
-            if (i != playerNumber)
-            {
-                cout << players[i].name << ": ";
-                players[i].printCardSet(deck);
-                cout << endl;
-            }
-            else cout << endl;
-        
-        cout << endl;
-        cout << "Âàøà ðóêà: ";
-        players[playerNumber].printCardSet(deck);
-        cout << endl << endl;
-        //Sleep(500);
-    }
-
-    void DealerGame(Player* dealer, Deck* deck)
-    {
-        while (dealer->getCardSum() < 17)
-        {
-            cout << "Ñåé÷àñ èãðàåò êðóïüå..." << endl;
-            cout << "Ðóêà êðóïüå: ";
-            dealer->printCardSet(deck);
-            dealer->takeCard(deck->getCard());
-            Sleep(800);
-            system("cls");
-        }
-
-        cout << "Ñåé÷àñ èãðàåò êðóïüå..." << endl;
-        cout << "Ðóêà êðóïüå: ";
-        dealer->printCardSet(deck);
-        cout << endl << endl;
-        cout << "Êðóïüå ñûãðàë. Íàáðàííûå î÷êè: " << dealer->getCardSum() << "!" << endl << endl;
-
-        system("pause");
-        system("cls");
     }
 
     void GameMenu(Player* players, Deck* deck)
     {
         Player dealer;
-        dealer.name = "Êðóïüå";
-        int c = 1;
-        
-        while (c == 1)
+        dealer.name = "ÐšÑ€ÑƒÐ¿ÑŒÐµ";
+        int ans = 1;
+
+        while (ans == 1)
         {
+            gameCount++;
             system("cls");
-            GameFlush(&dealer, players);
+            GameFlush(&dealer, players, deck);
 
             for (int i = 0; i < playerCount; i++) players[i].takeCard(deck->getCard());
             dealer.takeCard(deck->getCard());
@@ -237,80 +261,120 @@ public:
 
             if (dealer.getCardSum() == 21)
             {
-                cout << "Ó êðóïüå 21! Ïåðåñäà÷à...";
-                system("pause");
+                cout << "Ð£ ÐºÑ€ÑƒÐ¿ÑŒÐµ 21! ÐŸÐµÑ€ÐµÑÐ´Ð°Ñ‡Ð°..." << endl;
+                sys_pause("Ð”Ð»Ñ Ð¿ÐµÑ€ÐµÐ·Ð°Ð¿ÑƒÑÐºÐ° Ð¸Ð³Ñ€Ñ‹ Ð½Ð°Ð¶Ð¼Ð¸Ñ‚Ðµ Ð»ÑŽÐ±ÑƒÑŽ ÐºÐ»Ð°Ð²Ð¸ÑˆÑƒ...");
             }
             else
             {
-                for (int i = 0; i < playerCount; i++) 
+                for (int i = 0; i < playerCount; i++)
                     TurnMenu(&dealer, players, deck, i);
-                
+
                 system("cls");
                 DealerGame(&dealer, deck);
-                cout << "Î÷êè êðóïüå: " << dealer.getCardSum() << "!\t";
-                if (dealer.getCardSum() > 21) cout << "Êðóïüå ïðîèãðûâàåò!" << endl;
-                else if (dealer.getCardSum() == 21) cout << "Êðóïüå âûèãðûâàåò!" << endl;
+                cout << "ÐžÑ‡ÐºÐ¸ ÐºÑ€ÑƒÐ¿ÑŒÐµ: " << dealer.getCardSum() << "!\t";
+                if (dealer.getCardSum() > 21) cout << "ÐšÑ€ÑƒÐ¿ÑŒÐµ Ð¿Ñ€Ð¾Ð¸Ð³Ñ€Ñ‹Ð²Ð°ÐµÑ‚!" << endl;
+                else if (dealer.getCardSum() == 21) cout << "ÐšÑ€ÑƒÐ¿ÑŒÐµ Ð²Ñ‹Ð¸Ð³Ñ€Ñ‹Ð²Ð°ÐµÑ‚!" << endl;
                 cout << endl;
 
                 for (int i = 0; i < playerCount; i++)
                 {
                     int ds = dealer.getCardSum(), ps = players[i].getCardSum();
-                    cout << "(Èãðîê" << i + 1 << ") " << players[i].name << " íàáðàë " << players[i].getCardSum() << "!\t";
-                    
-                    //IMPROVE SCORE SYSTEM!!!
-                    if (ds > 21)
+                    cout << "(Ð˜Ð³Ñ€Ð¾Ðº" << i + 1 << ") " << players[i].name << " Ð½Ð°Ð±Ñ€Ð°Ð» " << players[i].getCardSum() << "!\t";
+
+                    if (ps < 21)
                     {
-                        if (ps < 21) { cout << players[i].name << " âûèãðûâàåò!" << endl << endl; players[i].setScore(ds - 21); }
-                        else if (ps == 21) { cout << players[i].name << " âûèãðûâàåò!" << endl << endl; players[i].setScore(ps); }
-                        else if (ps > ds) { cout << players[i].name << " ïðîèãðûâàåò!" << endl << endl; players[i].setScore(ds - ps); }
-                        else if (ps < ds) cout << "Íè÷üÿ!" << endl;
-                        else cout << "Íè÷üÿ!" << endl;
+                        if(ds > 21)
+                        {
+                            cout << players[i].name << " Ð²Ñ‹Ð¸Ð³Ñ€Ñ‹Ð²Ð°ÐµÑ‚!" << endl;
+                            players[i].setScore();
+                        }
+                        else
+                        {
+                            if (ps > ds)
+                            {
+                                cout << players[i].name << " Ð²Ñ‹Ð¸Ð³Ñ€Ñ‹Ð²Ð°ÐµÑ‚!" << endl;
+                                players[i].setScore();
+                            }
+                            else if (ps < ds)
+                            {
+                                cout << players[i].name << " Ð¿Ñ€Ð¾Ð¸Ð³Ñ€Ñ‹Ð²Ð°ÐµÑ‚!" << endl;
+                                dealer.setScore();
+                            }
+                            else
+                            {
+                                cout << "ÐÐ¸Ñ‡ÑŒÑ!" << endl;
+                            }
+                        }
                     }
-                    else if (ds == 21)
+                    else if (ps == 21)
                     {
-                        if (ps != ds) { cout << players[i].name << " ïðîèãðûâàåò!" << endl << endl; players[i].setScore(-abs(ds - ps)); }
-                        else cout << "Íè÷üÿ!" << endl;
+                        if (ds == 21)
+                        {
+                            cout << "ÐÐ¸Ñ‡ÑŒÑ!" << endl;
+                        }
+                        else
+                        {
+                            cout << players[i].name << " Ð²Ñ‹Ð¸Ð³Ñ€Ñ‹Ð²Ð°ÐµÑ‚!" << endl;
+                            players[i].setScore();
+                        }
                     }
                     else
                     {
-                        if (ps > 21) { cout << players[i].name << " ïðîèãðûâàåò!" << endl << endl; players[i].setScore(ps - 21); }
-                        else if (ps == 21) { cout << players[i].name << " âûèãðûâàåò!" << endl << endl; players[i].setScore(ps); }
-                        else if (ps > ds) { cout << players[i].name << " âûèãðûâàåò!" << endl << endl; players[i].setScore(ps - ds); }
-                        else if (ps < ds) { cout << players[i].name << " ïðîèãðûâàåò!" << endl << endl; players[i].setScore(ps - ds); }
-                        else cout << "Íè÷üÿ!" << endl;
+                        if (ds > 21)
+                        {
+                            cout << "ÐÐ¸Ñ‡ÑŒÑ!" << endl;
+                        }
+                        else 
+                        { 
+                            cout << players[i].name << " Ð¿Ñ€Ð¾Ð¸Ð³Ñ€Ñ‹Ð²Ð°ÐµÑ‚!" << endl; 
+                            dealer.setScore();
+                        }
                     }
                 }
 
-                c = 0;
-                while (c != 1 && c != 2)
+                cout << endl << "Ð’ÑÐµÐ³Ð¾ Ð¸Ð³Ñ€ - " << gameCount << ";" << endl << "ÐžÐ±Ñ‰Ð¸Ð¹ ÑÑ‡Ñ‘Ñ‚ Ð¿Ð¾Ð±ÐµÐ´: " << endl;
+                cout << "ÐšÑ€ÑƒÐ¿ÑŒÐµ - " << dealer.getScore() << "; " << endl;
+                for (int i = 0; i < playerCount; i++)
                 {
-                    cout << "\nÑûãðàòü åù¸ ðàç?\n1. Èãðàòü\n2. Âûõîä\n>>";
+                    cout << players[i].name << " - " << players[i].getScore() << "; ";
+                    if (i % 3 == 2 && i != playerCount - 1) cout << endl;
+                }
+                cout << endl << endl;
 
-                    //INPUT SECURE
-                    scanf("%d", &c);
+                ans = 0;
+                while (ans != 1 && ans != 2)
+                {
+                    //Ð²Ñ‹Ñ…Ð¾Ð´ Ð² Ð³Ð»Ð°Ð²Ð½Ð¾Ðµ Ð¼ÐµÐ½ÑŽ?
+                    cout << "Ð¡Ñ‹Ð³Ñ€Ð°Ñ‚ÑŒ ÐµÑ‰Ñ‘ Ñ€Ð°Ð·?\n1. Ð˜Ð³Ñ€Ð°Ñ‚ÑŒ\n2. Ð’Ñ‹Ð¹Ñ‚Ð¸ Ð¸Ð· Ð¸Ð³Ñ€Ñ‹\n\nÐ’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ñ†Ð¸Ñ„Ñ€Ñƒ: ";
 
-                    if (c != 2 && c != 1) cout << "Îøèáêà ââîäà. Ïîïðîáóéòå åù¸ ðàç" << endl;
-                    system("pause");
+                    ans = secure_cin();
+
+                    if (ans != 2 && ans != 1)
+                    {
+                        cout << "ÐžÑˆÐ¸Ð±ÐºÐ° Ð²Ð²Ð¾Ð´Ð°. ÐŸÐ¾Ð¿Ñ€Ð¾Ð±ÑƒÐ¹Ñ‚Ðµ ÐµÑ‰Ñ‘ Ñ€Ð°Ð·" << endl;
+                        sys_pause("ÐÐ°Ð¶Ð¼Ð¸Ñ‚Ðµ Ð»ÑŽÐ±ÑƒÑŽ ÐºÐ»Ð°Ð²Ð¸ÑˆÑƒ, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¿Ð¾Ð²Ñ‚Ð¾Ñ€Ð¸Ñ‚ÑŒ Ð²Ð²Ð¾Ð´...");
+                    }
                     system("cls");
                 }
             }
         }
-    
     }
 
     void TurnMenu(Player* dealer, Player* players, Deck* deck, int playerNumber)
     {
-        int ans;
+        int ans = 0;
         Player* player = &players[playerNumber];
 
-        while (player->getCardSum() < 21)
+        system("cls");
+        PrintStats(dealer, players, deck, playerNumber);
+
+        while (player->getCardSum() < 21 && player->getCardsTaken() < 5)
         {
             system("cls");
             PrintStats(dealer, players, deck, playerNumber);
-            cout << "Ñäåëàéòå õîä:\n1. Äîáðàòü\n2. Çàêîí÷èòü õîä\n\n>>";
+            cout << "Ð¡Ð´ÐµÐ»Ð°Ð¹Ñ‚Ðµ Ñ…Ð¾Ð´:\n1. Ð”Ð¾Ð±Ñ€Ð°Ñ‚ÑŒ\n2. Ð—Ð°ÐºÐ¾Ð½Ñ‡Ð¸Ñ‚ÑŒ Ñ…Ð¾Ð´\n\n>>";
 
-            //INPUT SECURE
-            scanf("%d", &ans);
+            ans = secure_cin();
 
             if (ans == 1)
             {
@@ -320,30 +384,92 @@ public:
             else if (ans == 2) break;
             else
             {
-                cout << "Îøèáêà ââîäà. Ïîïðîáóéòå åù¸ ðàç" << endl;
-                system("pause");
+                cout << "ÐžÑˆÐ¸Ð±ÐºÐ° Ð²Ð²Ð¾Ð´Ð°. ÐŸÐ¾Ð¿Ñ€Ð¾Ð±ÑƒÐ¹Ñ‚Ðµ ÐµÑ‰Ñ‘ Ñ€Ð°Ð·" << endl;
+                sys_pause("ÐÐ°Ð¶Ð¼Ð¸Ñ‚Ðµ Ð»ÑŽÐ±ÑƒÑŽ ÐºÐ»Ð°Ð²Ð¸ÑˆÑƒ, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¿Ð¾Ð²Ñ‚Ð¾Ñ€Ð¸Ñ‚ÑŒ Ð²Ð²Ð¾Ð´...");
             }
         }
 
-        if (player->getCardSum() == 21) cout << "21! Âû âûèãðàëè!" << endl;
-        else if (player->getCardSum() > 21) cout << "Ïåðåáîð! Âû ïðîèãðàëè!" << endl;
-        cout << "Ïåðåäàåì õîä ñëåäóþùåìó èãðîêó..." << endl;
-        system("pause");
+        if (player->getCardsTaken() == 5) cout << "Ð ÑƒÐºÐ° Ð·Ð°Ð¿Ð¾Ð»Ð½ÐµÐ½Ð°! Ð‘Ð¾Ð»ÑŒÑˆÐµ Ð±Ñ€Ð°Ñ‚ÑŒ Ð½ÐµÐ»ÑŒÐ·Ñ!" << endl;
+        if (player->getCardSum() == 21) cout << "21! Ð’Ñ‹ Ð²Ñ‹Ð¸Ð³Ñ€Ð°Ð»Ð¸!" << endl;
+        else if (player->getCardSum() > 21) cout << "ÐŸÐµÑ€ÐµÐ±Ð¾Ñ€! Ð’Ñ‹ Ð¿Ñ€Ð¾Ð¸Ð³Ñ€Ð°Ð»Ð¸!" << endl;
+
+        cout << endl << "ÐŸÐµÑ€ÐµÐ´Ð°ÐµÐ¼ Ñ…Ð¾Ð´ ÑÐ»ÐµÐ´ÑƒÑŽÑ‰ÐµÐ¼Ñƒ Ð¸Ð³Ñ€Ð¾ÐºÑƒ..." << endl;
+        if (ans == 2) Sleep(1000);
+        else sys_pause("ÐÐ°Ð¶Ð¼Ð¸Ñ‚Ðµ Ð»ÑŽÐ±ÑƒÑŽ ÐºÐ»Ð°Ð²Ð¸ÑˆÑƒ Ð´Ð»Ñ Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ñ...");
         system("cls");
     }
 
-    void printRules()
+    void DealerGame(Player* dealer, Deck* deck)
+    {
+        while (dealer->getCardSum() < 17 && dealer->getCardsTaken() < 5)
+        {
+            cout << "Ð¡ÐµÐ¹Ñ‡Ð°Ñ Ð¸Ð³Ñ€Ð°ÐµÑ‚ ÐºÑ€ÑƒÐ¿ÑŒÐµ..." << endl;
+            cout << "Ð ÑƒÐºÐ° ÐºÑ€ÑƒÐ¿ÑŒÐµ: ";
+            dealer->printCardSet(deck);
+            dealer->takeCard(deck->getCard());
+            Sleep(800);
+            system("cls");
+        }
+
+        cout << "Ð¡ÐµÐ¹Ñ‡Ð°Ñ Ð¸Ð³Ñ€Ð°ÐµÑ‚ ÐºÑ€ÑƒÐ¿ÑŒÐµ..." << endl;
+        cout << "Ð ÑƒÐºÐ° ÐºÑ€ÑƒÐ¿ÑŒÐµ: ";
+        dealer->printCardSet(deck);
+        cout << endl << endl;
+        cout << "ÐšÑ€ÑƒÐ¿ÑŒÐµ ÑÑ‹Ð³Ñ€Ð°Ð». ÐÐ°Ð±Ñ€Ð°Ð½Ð½Ñ‹Ðµ Ð¾Ñ‡ÐºÐ¸: " << dealer->getCardSum() << "!" << endl << endl;
+
+        sys_pause("ÐÐ°Ð¶Ð¼Ð¸Ñ‚Ðµ Ð»ÑŽÐ±ÑƒÑŽ ÐºÐ»Ð°Ð²Ð¸ÑˆÑƒ, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¿ÐµÑ€ÐµÐ¹Ñ‚Ð¸ Ðº Ð¿Ð¾Ð´ÑÑ‡Ñ‘Ñ‚Ñƒ Ð¾Ñ‡ÐºÐ¾Ð²...");
+        system("cls");
+    }
+
+    void GameFlush(Player* dealer, Player* players, Deck* deck)
+    {
+        for (int i = 0; i < playerCount; i++)
+            players[i].PlayerFlush();
+        dealer->PlayerFlush();
+        deck->DeckFlush();
+    }
+
+    void PrintStats(Player* dealer, Player* players, Deck* deck, int playerNumber)
     {
         system("cls");
-        cout << "\t\t\tÏðàâèëà èãðû" << endl;
-        cout << "Êàæäûé èãðîê ïîëó÷àåò íà ðóêè ïî äâå êàðòû." << endl;
-        cout << "Ëþáîé èãðîê â ñâîé õîä ìîæåò ïîïðîñèòü äîïîëíèòåëüíóþ êàðòó, åñëè ñ÷èòàåò íóæíûì, èëè îòêàçàòüñÿ îò íåå." << endl
-            << "Èãðîê ìîæåò èìåòü íà ðóêàõ íå áîëåå 5 êàðò. Èãðîê, íàáðàâøèé 21 î÷êî, ñðàçó âûèãðûâàåò." << endl
-            << "Òàê æå ñðàçó âûèãðûâàåò èãðîê íàáðàâøèé \"çîëîòîå î÷êî\", òî åñòü èìåþùèé íà ðóêàõ äâóõ òóçîâ." << endl
-            << "Èãðîê, íàáðàâøèé êîëè÷åñòâî î÷êîâ áîëüøåå ÷åì 21, àâòîìàòè÷åñêè ïðîèãðûâàåò" << endl;
-        cout << "Èãðîêè íàáðàâøèå ìåíåå 21 î÷êà æäóò, ïîêà êðóïüå íå äîáåðåò êàðòû ñåáå." << endl
-            << "Åñëè ñóììà î÷êîâ êðóïüå ïðåâûøàåò ñóììó î÷êîâ èãðîêà, îí ïðîèãðûâàåò." << endl
-            << "Åñëè ñóììà î÷êîâ êðóïüå ìåíüøå ñóììû î÷êîâ èãðîêà, èãðîê âûèãðûâàåò." << endl << endl;
+        cout << "\t\t\t(Ð˜Ð³Ñ€Ð¾Ðº" << playerNumber + 1 << ") " << players[playerNumber].name << " Ñ…Ð¾Ð´Ð¸Ñ‚!" << endl;
+        cout << "ÐšÑ€ÑƒÐ¿ÑŒÐµ: " << dealer->getFirstCard(deck) << " X" << endl;
+
+        for (int i = 0; i < playerCount; i++)
+            if (i != playerNumber)
+            {
+                cout << players[i].name << ": ";
+                players[i].printCardSet(deck);
+                cout << endl;
+            }
+            else cout << endl;
+
+        if (playerCount > 1) cout << endl;
+        cout << "Ð’Ð°ÑˆÐ° Ñ€ÑƒÐºÐ°: ";
+        players[playerNumber].printCardSet(deck);
+        cout << endl << endl;
+    }
+
+    void PrintRules()
+    {
+        system("cls");
+        cout << "\t\t\t\tÐŸÑ€Ð°Ð²Ð¸Ð»Ð° Ð¸Ð³Ñ€Ñ‹" << endl;
+        cout << "ÐšÐ°Ð¶Ð´Ñ‹Ð¹ Ð¸Ð³Ñ€Ð¾Ðº Ð¿Ð¾Ð»ÑƒÑ‡Ð°ÐµÑ‚ Ð½Ð° Ñ€ÑƒÐºÐ¸ Ð¿Ð¾ Ð´Ð²Ðµ ÐºÐ°Ñ€Ñ‚Ñ‹." << endl;
+        cout << "Ð›ÑŽÐ±Ð¾Ð¹ Ð¸Ð³Ñ€Ð¾Ðº Ð² ÑÐ²Ð¾Ð¹ Ñ…Ð¾Ð´ Ð¼Ð¾Ð¶ÐµÑ‚ Ð¿Ð¾Ð¿Ñ€Ð¾ÑÐ¸Ñ‚ÑŒ Ð´Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½ÑƒÑŽ ÐºÐ°Ñ€Ñ‚Ñƒ, ÐµÑÐ»Ð¸ ÑÑ‡Ð¸Ñ‚Ð°ÐµÑ‚ Ð½ÑƒÐ¶Ð½Ñ‹Ð¼," << endl
+            << "Ð¸Ð»Ð¸ Ð¾Ñ‚ÐºÐ°Ð·Ð°Ñ‚ÑŒÑÑ Ð¾Ñ‚ Ð½ÐµÐµ." << endl
+            << "Ð˜Ð³Ñ€Ð¾Ðº Ð¼Ð¾Ð¶ÐµÑ‚ Ð¸Ð¼ÐµÑ‚ÑŒ Ð½Ð° Ñ€ÑƒÐºÐ°Ñ… Ð½Ðµ Ð±Ð¾Ð»ÐµÐµ 5 ÐºÐ°Ñ€Ñ‚. Ð˜Ð³Ñ€Ð¾Ðº, Ð½Ð°Ð±Ñ€Ð°Ð²ÑˆÐ¸Ð¹ 21 Ð¾Ñ‡ÐºÐ¾, ÑÑ€Ð°Ð·Ñƒ Ð²Ñ‹Ð¸Ð³Ñ€Ñ‹Ð²Ð°ÐµÑ‚." << endl
+            << "Ð˜Ð³Ñ€Ð¾Ðº, Ð½Ð°Ð±Ñ€Ð°Ð²ÑˆÐ¸Ð¹ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¾Ñ‡ÐºÐ¾Ð² Ð±Ð¾Ð»ÑŒÑˆÐµÐµ Ñ‡ÐµÐ¼ 21, Ð°Ð²Ñ‚Ð¾Ð¼Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸ Ð¿Ñ€Ð¾Ð¸Ð³Ñ€Ñ‹Ð²Ð°ÐµÑ‚" << endl;
+
+        cout << "Ð˜Ð³Ñ€Ð¾ÐºÐ¸ Ð½Ð°Ð±Ñ€Ð°Ð²ÑˆÐ¸Ðµ Ð¼ÐµÐ½ÐµÐµ 21 Ð¾Ñ‡ÐºÐ° Ð¶Ð´ÑƒÑ‚, Ð¿Ð¾ÐºÐ° ÐºÑ€ÑƒÐ¿ÑŒÐµ Ð½Ðµ Ð´Ð¾Ð±ÐµÑ€ÐµÑ‚ ÐºÐ°Ñ€Ñ‚Ñ‹ ÑÐµÐ±Ðµ." << endl
+            << "Ð•ÑÐ»Ð¸ ÑÑƒÐ¼Ð¼Ð° Ð¾Ñ‡ÐºÐ¾Ð² ÐºÑ€ÑƒÐ¿ÑŒÐµ Ð¿Ñ€ÐµÐ²Ñ‹ÑˆÐ°ÐµÑ‚ ÑÑƒÐ¼Ð¼Ñƒ Ð¾Ñ‡ÐºÐ¾Ð² Ð¸Ð³Ñ€Ð¾ÐºÐ°, Ð¸Ð³Ñ€Ð¾Ðº Ð¿Ñ€Ð¾Ð¸Ð³Ñ€Ñ‹Ð²Ð°ÐµÑ‚." << endl
+            << "Ð•ÑÐ»Ð¸ ÑÑƒÐ¼Ð¼Ð° Ð¾Ñ‡ÐºÐ¾Ð² ÐºÑ€ÑƒÐ¿ÑŒÐµ Ð¼ÐµÐ½ÑŒÑˆÐµ ÑÑƒÐ¼Ð¼Ñ‹ Ð¾Ñ‡ÐºÐ¾Ð² Ð¸Ð³Ñ€Ð¾ÐºÐ°, Ð¸Ð³Ñ€Ð¾Ðº Ð²Ñ‹Ð¸Ð³Ñ€Ñ‹Ð²Ð°ÐµÑ‚." << endl
+            << "Ð•ÑÐ»Ð¸ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¾Ñ‡ÐºÐ¾Ð² ÑÐ¾Ð²Ð¿Ð°Ð´Ð°ÐµÑ‚, Ñ‚Ð¾ ÑÑ‚Ð¾ Ð½Ð¸Ñ‡ÑŒÑ." << endl << endl;
+
+        cout << "Ð’ Ð¸Ð³Ñ€Ðµ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÑ‚ÑÑ ÑÑ‚Ð°Ð½Ð´Ð°Ñ€Ñ‚Ð½Ð°Ñ ÐºÐ¾Ð»Ð¾Ð´Ð° Ð¸Ð· 36 ÐºÐ°Ñ€Ñ‚." << endl
+            << "ÐÐ¾Ð¼Ð¸Ð½Ð°Ð»Ñ‹ ÐºÐ°Ñ€Ñ‚: A (Ñ‚ÑƒÐ·) - 11 Ð¸Ð»Ð¸ 1, ÐµÑÐ»Ð¸ ÑÑƒÐ¼Ð¼Ð° ÐºÐ°Ñ€Ñ‚ Ð² Ñ€ÑƒÐºÐµ Ð¿Ñ€ÐµÐ²Ñ‹ÑˆÐ°ÐµÑ‚ 21;" << endl
+            << "ÐºÐ°Ñ€Ñ‚Ñ‹ Ð¾Ñ‚ 6 Ð´Ð¾ 10 Ð¸Ð¼ÐµÑŽÑ‚ ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ð¹ Ð½Ð¾Ð¼Ð¸Ð½Ð°Ð» " << endl
+            << "V (Ð²Ð°Ð»ÐµÑ‚) - 2; Q (Ð´Ð°Ð¼Ð°) - 3; K (ÐºÐ¾Ñ€Ð¾Ð»ÑŒ) - 4; X - ÐºÐ°Ñ€Ñ‚Ð° ÐºÑ€ÑƒÐ¿ÑŒÐµ, Ñ€ÑƒÐ±Ð°ÑˆÐºÐ¾Ð¹ Ð²Ð²ÐµÑ€Ñ…" << endl << endl;
+
     }
 
 };
